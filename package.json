@@ -1,0 +1,85 @@
+{
+  "name": "feishu-mcp-server",
+  "version": "0.0.1",
+  "description": "FeiShu MCP Server",
+  "scripts": {
+    "check": "biome check --write",
+    "format": "biome format --write",
+    "build": "tsx ./scripts/build.ts",
+    "build:publish": "tsx ./scripts/prepublish.ts",
+    "start": "nodemon",
+    "inspect": "pnpx @modelcontextprotocol/inspector",
+    "prepare": "husky",
+    "pre-commit": "lint-staged",
+    "lint": "biome check .",
+    "lint:fix": "biome check --apply ."
+  },
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=23.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdd330/feishu-mcp-server.git"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "preferGlobal": true,
+  "bin": {
+    "feishu-mcp-server": "dist/index.js"
+  },
+  "keywords": ["feishu", "mcp"],
+  "author": "yang.leijun@gmail.com",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.7.0",
+    "axios": "1.8.4",
+    "dotenv": "16.4.7",
+    "qs": "6.13.0",
+    "tslib": "2.8.1",
+    "yargs": "17.7.2",
+    "zod": "3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/express": "5.0.1",
+    "@types/http-errors": "^2.0.4",
+    "@types/node": "22.13.11",
+    "@types/qs": "6.9.16",
+    "@types/yargs": "17.0.33",
+    "express": "4.21.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "nodemon": "3.1.9",
+    "tsup": "8.4.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2",
+    "zx": "8.4.1"
+  },
+  "lint-staged": {
+    "*.{js,ts}": ["biome check --apply", "biome format --write"]
+  },
+  "resolutions": {
+    "axios": "1.8.4"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": "esm",
+    "splitting": false,
+    "sourcemap": false,
+    "clean": true,
+    "minify": true,
+    "noExternal": [
+      "@modelcontextprotocol/sdk",
+      "zod",
+      "axios",
+      "tslib",
+      "dotenv"
+    ],
+    "define": {
+      "process.env.NODE_ENV": "\"production\"",
+      "process.env.VERSION": "\"0.0.1\""
+    }
+  }
+}

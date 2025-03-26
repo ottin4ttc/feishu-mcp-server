@@ -21,10 +21,12 @@
 
 ```
 /src
-  /client        # API客户端实现
+  /client        # API客户端实现（底层API请求）
+    /bots        # 机器人API客户端
+    ...
   /server        # MCP服务器实现
     /tools       # MCP工具注册
-  /services      # 服务层实现
+  /services      # 服务层实现（业务逻辑和错误处理）
     /documents   # 文档相关服务
     /bots        # 机器人相关服务
   /typings       # 类型定义
@@ -67,6 +69,64 @@ PORT=3344
 ## 开发规范
 
 本项目使用husky和lint-staged来确保代码质量和一致性：
+
+### 代码组织规范
+
+项目遵循以下目录结构和职责划分规范：
+
+#### 1. 客户端实现 (`/src/client`)
+
+- 所有API客户端实现必须放在 `/src/client` 目录下
+- 特定功能的客户端应放在相应子目录中（如 `/src/client/bots/`）
+- 客户端类负责：
+  - 封装HTTP请求的细节
+  - 处理底层API参数和响应格式
+  - 不包含业务逻辑或错误处理策略
+
+示例：`DocumentClient`, `BotClient` 等类应该放在此目录下
+
+#### 2. 服务实现 (`/src/services`)
+
+- 所有业务服务实现必须放在 `/src/services` 目录下
+- 特定功能的服务应放在相应子目录中（如 `/src/services/bots/`）
+- 服务类负责：
+  - 使用客户端类执行API操作
+  - 实现业务逻辑
+  - 处理错误和异常
+  - 提供对外的服务接口
+
+示例：`DocumentService`, `BotService` 等类应该放在此目录下
+
+#### 3. 工具注册 (`/src/server/tools`)
+
+- MCP工具的注册和实现放在 `/src/server/tools` 目录下
+- 每个功能模块应有自己的工具文件（如 `document-tools.ts`）
+
+### 架构原则
+
+1. **分层职责**
+   - 客户端层（Client）：处理API请求和响应
+   - 服务层（Service）：处理业务逻辑和错误管理
+   - 工具层（Tools）：暴露功能给MCP协议
+
+2. **依赖方向**
+   - 服务层依赖客户端层，而不是反向
+   - 工具层依赖服务层，而不是反向
+
+3. **错误处理**
+   - 客户端层应返回原始错误或通用错误
+   - 服务层应捕获错误并转换为业务相关错误
+   - 使用 `FeiShuApiError` 类统一处理API错误
+
+4. **类型安全**
+   - 使用TypeScript接口和类型定义
+   - 避免使用 `any` 类型
+   - 正确使用 `Record<string, unknown>` 替代 `object` 类型
+
+5. **语言标准**
+   - 所有代码注释和错误消息必须使用英语
+   - 变量名、函数名和类名必须使用英语
+   - 代码中的文档应当使用清晰简洁的英语
 
 ### Git提交规范
 
@@ -148,8 +208,8 @@ node dist/index.js --stdio
 
 | 选项 | 环境变量 | 命令行参数 | 默认值 | 描述 |
 |------|----------|------------|--------|------|
-| 飞书应用ID | `FEISHU_APP_ID` | `--feishu-app-id` | - | 飞书应用的App ID |
-| 飞书应用密钥 | `FEISHU_APP_SECRET` | `--feishu-app-secret` | - | 飞书应用的App Secret |
+| 飞书自建应用ID | `FEISHU_APP_ID` | `--feishu-app-id` | - | 飞书自建应用的App ID |
+| 飞书自建应用密钥 | `FEISHU_APP_SECRET` | `--feishu-app-secret` | - | 飞书自建应用的App Secret |
 | 服务器端口 | `PORT` | `--port` | 3344 | HTTP服务器端口号 |
 
 ## API文档
@@ -161,7 +221,7 @@ node dist/index.js --stdio
 获取飞书文档的原始内容。
 
 参数：
-- `docId` - 文档ID，通常在URL中找到 (例如：feishu.cn/wiki/<documentId>)
+- `docId` - 文档ID，通常在URL中找到 (例如：feishu.cn/docx/<documentId>)
 
 返回：
 - 文档的文本内容
@@ -204,8 +264,8 @@ node dist/index.js --stdio
 
 该项目设计为易于扩展，如需添加新功能：
 
-1. 在适当的目录下创建新的客户端类（如`services/[feature]/[feature]-client.ts`）
-2. 创建相应的服务类（如`services/[feature]/[feature]-service.ts`）
+1. 在`client`目录下创建新的客户端类（如`client/[feature]/[feature]-client.ts`）
+2. 在`services`目录下创建相应的服务类（如`services/[feature]/[feature]-service.ts`）
 3. 在`services/index.ts`中注册新服务
 4. 添加相应的MCP工具（在`server/tools/[feature]-tools.ts`）
 5. 在`server/tools/index.ts`中注册新工具
