@@ -4,47 +4,127 @@
 [![Node.js](https://img.shields.io/badge/Node.js->=23-green.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-FeiShu MCP Server is a service based on the [Model Context Protocol](https://modelcontextprotocol.ai/) that provides FeiShu API integration, supporting document reading and bot message sending capabilities, allowing AI models to easily interact with FeiShu services.
+FeiShu MCP Server is a service based on the [Model Context Protocol](https://modelcontextprotocol.ai/) that provides FeiShu API integration, enabling AI models to easily interact with FeiShu services.
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+  - [Code Structure](#code-structure)
+  - [Design Principles](#design-principles)
+  - [Workflow](#workflow)
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Service](#running-the-service)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+  - [Document Operations](#document-operations)
+  - [Bot Operations](#bot-operations)
+  - [Chat Operations](#chat-operations)
+- [Development Guide](#development-guide)
+  - [Coding Standards](#coding-standards)
+  - [Error Handling](#error-handling)
+  - [Commit Standards](#commit-standards)
+  - [Extension Guide](#extension-guide)
+- [FAQ](#faq)
+- [License](#license)
+- [Contributing](#contributing)
 
 ## Features
 
-- **Document Services**: Read FeiShu document content and metadata
-- **Bot Services**: Send text messages and interactive cards to FeiShu chats
-- **Dual Mode Support**:
-  - STDIO mode: Suitable for CLI environments, communicates via standard input/output
-  - HTTP mode: Provides HTTP interfaces with SSE connection support
-- **Modular Architecture**: Easy to extend with new features and integrate other FeiShu APIs
+- **Document Service**: Read FeiShu document content and metadata
+- **Bot Service**: Send text messages and interactive cards to FeiShu chats
+- **Chat Service**: Manage groups and chat sessions
+- **Dual-Mode Support**:
+  - **STDIO Mode**: Communication via standard input/output, suitable for CLI environments and integration into other applications
+  - **HTTP Mode**: Provides REST API and SSE connections, suitable for web services and distributed deployments
+- **Robust Error Handling**: Unified error handling mechanism providing detailed error information
+- **Type Safety**: Based on TypeScript, providing complete type definitions
+- **Modular Architecture**: Easy to extend with new features and integrate with other FeiShu APIs
 
-## Project Structure
+## Architecture
 
-The project uses a modular, layered architecture design to ensure the code is easy to understand and extend:
+### Code Structure
 
 ```
 /src
-  /client        # API client implementations (low-level API requests)
+  /client        # API client implementation (low-level API request encapsulation)
+    /documents   # Document-related API clients
     /bots        # Bot API clients
-    /documents   # Document API clients
-    ...
-  /server        # MCP server implementation
-    /tools       # MCP tool registrations
-  /services      # Service layer implementations (business logic and error handling)
+    /chats       # Chat-related API clients
+    /utils       # Client utilities
+  /services      # Service layer implementation (business logic and error handling)
     /documents   # Document-related services
     /bots        # Bot-related services
+    /chats       # Chat-related services
+  /server        # MCP server implementation
+    /tools       # MCP tool registration and implementation
+      /impl      # Tool implementation details
   /typings       # Type definitions
-  /utils         # Utility functions
+  /utils         # Common utilities
+  /http          # HTTP server implementation
+  /logger        # Logging service
+  /consts        # Constants
   config.ts      # Configuration management
   index.ts       # Entry point
 ```
 
-## Installation
+### Design Principles
+
+The project uses a layered architecture design to ensure separation of concerns and clear responsibilities:
+
+#### 1. Layer Responsibilities
+
+- **Client Layer**
+  - Encapsulates HTTP request details
+  - Handles low-level API parameters and response formats
+  - Manages authentication and token refresh
+  - Contains no business logic
+
+- **Service Layer**
+  - Uses clients to perform API operations
+  - Implements business logic
+  - Handles and transforms errors
+  - Provides a friendly interface for upper layers
+
+- **Tool Layer**
+  - Implements tools defined by the MCP protocol
+  - Handles parameter validation and format conversion
+  - Calls the service layer to complete actual operations
+  - Formats return results
+
+#### 2. Dependency Direction
+
+- Service layer depends on client layer
+- Tool layer depends on service layer
+- Strictly avoids circular dependencies
+
+#### 3. Error Handling Strategy
+
+- Uses `FeiShuApiError` to uniformly handle API errors
+- Client layer returns original errors
+- Service layer catches and converts to business-related errors
+- Tool layer handles all exceptions and returns user-friendly messages
+
+### Workflow
+
+1. MCP server receives requests (STDIO or HTTP)
+2. Tool layer validates parameters and calls the appropriate service
+3. Service layer implements business logic and calls the client
+4. Client executes the actual API request and returns the result
+5. Results are processed by the service layer and returned to the tool layer
+6. Tool layer formats results and returns them to the MCP server
+
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 23.0 or higher
-- npm or yarn package manager
-- Valid FeiShu developer account and application
+- pnpm package manager
+- Valid FeiShu developer account and a created custom application
 
-### Installation Steps
+### Installation
 
 1. Clone the repository
 
@@ -59,159 +139,59 @@ cd feishu-mcp-server
 pnpm install
 ```
 
-3. Create a `.env` file (or set environment variables)
+3. Create a `.env` file
 
 ```
+# FeiShu application credentials (required)
 FEISHU_APP_ID=your_app_id
 FEISHU_APP_SECRET=your_app_secret
+
+# Server configuration (optional)
 PORT=3344
+LOG_LEVEL=info
 ```
 
-## Development Standards
+### Running the Service
 
-This project uses husky and lint-staged to ensure code quality and consistency:
-
-### Code Organization Standards
-
-The project follows these directory structure and responsibility division standards:
-
-#### 1. Client Implementations (`/src/client`)
-
-- All API client implementations must be placed in the `/src/client` directory
-- Specific feature clients should be placed in appropriate subdirectories (e.g., `/src/client/bots/`)
-- Client classes are responsible for:
-  - Encapsulating HTTP request details
-  - Handling low-level API parameters and response formats
-  - Not containing business logic or error handling strategies
-
-Examples: `DocumentClient`, `BotClient` classes should be placed in this directory
-
-#### 2. Service Implementations (`/src/services`)
-
-- All business service implementations must be placed in the `/src/services` directory
-- Specific feature services should be placed in appropriate subdirectories (e.g., `/src/services/bots/`)
-- Service classes are responsible for:
-  - Using client classes to execute API operations
-  - Implementing business logic
-  - Handling errors and exceptions
-  - Providing external service interfaces
-
-Examples: `DocumentService`, `BotService` classes should be placed in this directory
-
-#### 3. Tool Registrations (`/src/server/tools`)
-
-- MCP tool registrations and implementations are placed in the `/src/server/tools` directory
-- Each feature module should have its own tools file (e.g., `document-tools.ts`)
-
-### Architecture Principles
-
-1. **Layer Responsibilities**
-   - Client Layer (Client): Handles API requests and responses
-   - Service Layer (Service): Handles business logic and error management
-   - Tool Layer (Tools): Exposes functionality to the MCP protocol
-
-2. **Dependency Direction**
-   - Service layer depends on client layer, not the other way around
-   - Tool layer depends on service layer, not the other way around
-
-3. **Error Handling**
-   - Client layer should return original errors or generic errors
-   - Service layer should catch errors and convert them to business-related errors
-   - Use the `FeiShuApiError` class to handle API errors uniformly
-
-4. **Type Safety**
-   - Use TypeScript interfaces and type definitions
-   - Avoid using `any` type
-   - Correctly use `Record<string, unknown>` instead of `object` type
-
-5. **Language Standard**
-   - All code comments and error messages must be in English
-   - Variable names, function names, and class names must be in English
-   - Documentation in code should be clear and concise English
-
-### Git Commit Standards
-
-Commit messages must follow this format:
-```
-<type>(<scope>): <subject>
-```
-
-Examples:
-- `feat(bot): add card sending feature`
-- `fix(documents): fix document content retrieval error`
-
-Supported types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style adjustments
-- `refactor`: Code refactoring
-- `perf`: Performance optimization
-- `test`: Test-related
-- `chore`: Build process or auxiliary tool changes
-
-### Automatic Code Checking
-
-- Code checking and formatting run automatically before commits
-- Type checking and build verification run before pushes
-
-### Manual Checking
+#### Development Mode
 
 ```bash
-# Run code checking
-pnpm lint
+# Development mode (auto-restart)
+pnpm dev
 
-# Run code checking and fix
-pnpm lint:fix
-
-# Run code formatting
-pnpm format
-```
-
-## Usage
-
-### Development Mode
-
-```bash
+# Or use standard start
 pnpm start
 ```
 
-### Build and Run
+#### Production Mode
 
 ```bash
+# Build the project
 pnpm build
+
+# Run the compiled code
 node dist/index.js
 ```
 
-### Command Line Arguments
-
-The server supports the following command line arguments:
+#### STDIO Mode
 
 ```bash
-node dist/index.js --feishu-app-id=your_app_id --feishu-app-secret=your_app_secret --port=3344
-```
-
-### STDIO Mode
-
-For integration with other applications, you can use STDIO mode:
-
-```bash
+# Method 1: Using environment variables
 NODE_ENV=cli node dist/index.js
-```
 
-or
-
-```bash
+# Method 2: Using command line arguments
 node dist/index.js --stdio
 ```
 
-## Configuration Options
+## Configuration
 
-| Option | Environment Variable | Command Line Argument | Default Value | Description |
-|--------|---------------------|----------------------|---------------|-------------|
-| FeiShu App ID | `FEISHU_APP_ID` | `--feishu-app-id` | - | App ID of your FeiShu application |
-| FeiShu App Secret | `FEISHU_APP_SECRET` | `--feishu-app-secret` | - | App Secret of your FeiShu application |
+| Option | Environment Variable | Command Line Argument | Default | Description |
+|--------|---------------------|----------------------|---------|-------------|
+| FeiShu App ID | `FEISHU_APP_ID` | `--feishu-app-id` | - | FeiShu custom application App ID |
+| FeiShu App Secret | `FEISHU_APP_SECRET` | `--feishu-app-secret` | - | FeiShu custom application App Secret |
 | Server Port | `PORT` | `--port` | 3344 | HTTP server port number |
+| Log Level | `LOG_LEVEL` | `--log-level` | info | Log level (debug/info/warn/error) |
+| Token Cache Duration | `TOKEN_CACHE_DURATION` | - | 7100 | Access token cache time (seconds) |
 
 ## API Documentation
 
@@ -222,20 +202,20 @@ node dist/index.js --stdio
 Get the raw content of a FeiShu document.
 
 Parameters:
-- `docId` - Document ID, typically found in the URL (e.g., feishu.cn/wiki/<documentId>)
+- `docId` - Document ID, typically found in the URL (e.g.: feishu.cn/docx/<documentId>)
 
 Returns:
-- The text content of the document
+- Text content of the document
 
 #### `get_feishu_doc_info`
 
-Get metadata for a FeiShu document.
+Get metadata information for a FeiShu document.
 
 Parameters:
 - `docId` - Document ID
 
 Returns:
-- Document metadata (in JSON format)
+- Document metadata (JSON format)
 
 ### Bot Operations
 
@@ -256,26 +236,191 @@ Send an interactive card to a FeiShu chat.
 
 Parameters:
 - `chatId` - Chat ID
-- `cardContent` - Card content (as a JSON string)
+- `cardContent` - Card content (JSON string)
 
 Returns:
 - Send status and message ID
 
-## Extension Guide
+### Chat Operations
 
-The project is designed to be easily extensible. To add new features:
+#### `get_feishu_chat_info`
 
-1. Create a new client class in the `client` directory (e.g., `client/[feature]/[feature]-client.ts`)
-2. Create the corresponding service class in the `services` directory (e.g., `services/[feature]/[feature]-service.ts`)
-3. Register the new service in `services/index.ts`
-4. Add the corresponding MCP tools (in `server/tools/[feature]-tools.ts`)
-5. Register the new tools in `server/tools/index.ts`
+Get basic information about a FeiShu chat.
+
+Parameters:
+- `chatId` - Chat ID
+
+Returns:
+- Basic chat information (JSON format)
+
+## Development Guide
+
+### Coding Standards
+
+The project uses strict TypeScript standards and ESLint configuration:
+
+- Use TypeScript interfaces and type definitions
+- Avoid using the `any` type
+- Use `Record<string, unknown>` instead of `object` type
+- All code files, comments, and error messages use English
+
+Running code checks:
+
+```bash
+# Run code checks
+pnpm lint
+
+# Run code checks and fix
+pnpm lint:fix
+
+# Run code formatting
+pnpm format
+```
+
+### Error Handling
+
+All FeiShu API-related errors should be handled using the `FeiShuApiError` class:
+
+```typescript
+try {
+  // API operation
+} catch (error) {
+  if (error instanceof FeiShuApiError) {
+    // Handle specific API errors
+    logger.error(`FeiShu API Error (${error.code}): ${error.message}`);
+  } else {
+    // Handle generic errors
+    logger.error('Unexpected error:', error);
+  }
+  // Convert to user-friendly message
+  throw new FeiShuApiError('Operation failed', { cause: error });
+}
+```
+
+### Commit Standards
+
+Commit messages must follow this format:
+```
+<type>(<scope>): <subject>
+```
+
+Examples:
+- `feat(bot): add card sending functionality`
+- `fix(documents): fix document content retrieval error`
+
+Supported types:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code formatting adjustments
+- `refactor`: Code refactoring
+- `perf`: Performance optimization
+- `test`: Test-related
+- `chore`: Build process or auxiliary tool changes
+
+### Extension Guide
+
+Steps to add new functionality:
+
+1. **Create a Client Class**
+   - Create in the `src/client/<feature>/` directory
+   - Extend the `ApiClient` base class
+   - Implement API request methods
+
+   ```typescript
+   // src/client/feature/feature-client.ts
+   export class FeatureClient extends ApiClient {
+     async getFeatureData(id: string): Promise<FeatureData> {
+       return this.request<FeatureResponse>('/feature/get', { id });
+     }
+   }
+   ```
+
+2. **Create a Service Class**
+   - Create in the `src/services/<feature>/` directory
+   - Use the corresponding client class
+   - Implement business logic and error handling
+
+   ```typescript
+   // src/services/feature/feature-service.ts
+   export class FeatureService {
+     private client: FeatureClient;
+     
+     constructor(config: ApiClientConfig) {
+       this.client = new FeatureClient(config);
+     }
+     
+     async getFeature(id: string): Promise<Feature> {
+       try {
+         const data = await this.client.getFeatureData(id);
+         return this.transformData(data);
+       } catch (error) {
+         handleError(error);
+       }
+     }
+   }
+   ```
+
+3. **Register the Service**
+   - Export the new service in `src/services/index.ts`
+   - Add the service to the `FeiShuServices` class
+
+4. **Create an MCP Tool**
+   - Create in `src/server/tools/feature-tools.ts`
+   - Use Zod for parameter validation
+   - Call the service layer method
+
+   ```typescript
+   // src/server/tools/feature-tools.ts
+   export function registerFeatureTools(params: ToolRegistryParams): void {
+     const { server, services, logger } = params;
+     
+     server.tool(
+       'get_feishu_feature',
+       'Get feature from FeiShu',
+       {
+         id: z.string().describe('Feature ID'),
+       },
+       async ({ id }) => {
+         try {
+           const feature = await services.feature.getFeature(id);
+           return { content: [{ type: 'text', text: JSON.stringify(feature) }] };
+         } catch (error) {
+           return handleToolError(error, logger);
+         }
+       }
+     );
+   }
+   ```
+
+5. **Register the Tool**
+   - Import and register the new tool in `src/server/tools/index.ts`
+
+## FAQ
+
+### Authentication Failed
+
+**Problem**: API request returns authentication error
+
+**Solution**:
+- Check if the application ID and secret are correct
+- Confirm the application has the required permission scopes
+- Check if the server time is correctly synchronized
+
+### Token Refresh Issues
+
+**Problem**: Token refresh fails
+
+**Solution**:
+- Set a shorter token cache time
+- Check network connection stability
+- Check the application status on the FeiShu developer platform
 
 ## License
 
 MIT
 
-## Contributing Guidelines
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -283,4 +428,10 @@ Contributions are welcome! Please follow these steps:
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'feat: add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request 
+5. Open a Pull Request
+
+Before submitting a PR, please ensure:
+- Your code passes all tests
+- You've updated relevant documentation
+- You follow the project's code style and naming conventions
+- You've added necessary unit tests 
