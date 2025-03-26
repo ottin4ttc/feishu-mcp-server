@@ -1,3 +1,19 @@
+# Mac OS
+.DS_Store
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+
+# Build
+target
+build
+
 # Logs
 logs
 *.log
@@ -134,3 +150,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# 不忽略husky钩子
+!.husky
+!.husky/*
+!.husky/_/*

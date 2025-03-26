@@ -1,0 +1,5 @@
+# 在此处添加Husky的全局设置
+# 例如路径、环境变量等
+
+# 如果需要调试Husky，设置以下变量为1
+# export HUSKY_DEBUG=1 
