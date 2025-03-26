@@ -1,9 +1,10 @@
+import { ApiClient, type ApiResponse } from '@/client/api-client.js';
 /**
  * Chat Client
  *
  * Implements FeiShu Chat API operations.
  */
-import { ApiClient, type ApiResponse } from '@/client/api-client.js';
+import { camel2Snake } from '@/utils/index.js';
 
 /**
  * Common parameter interface for chat API calls
@@ -52,16 +53,6 @@ export interface ChatResponseData {
 }
 
 /**
- * Chat search response
- */
-export type ChatSearchResponse = ApiResponse<ChatResponseData>;
-
-/**
- * Chat list response
- */
-export type ChatListResponse = ApiResponse<ChatResponseData>;
-
-/**
  * Feishu Chat Client
  */
 export class ChatClient extends ApiClient {
@@ -76,16 +67,7 @@ export class ChatClient extends ApiClient {
 
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
-        const paramKey =
-          key === 'pageToken'
-            ? 'page_token'
-            : key === 'pageSize'
-              ? 'page_size'
-              : key === 'userIdType'
-                ? 'user_id_type'
-                : key;
-
-        queryParams.append(paramKey, String(value));
+        queryParams.append(camel2Snake(key), String(value));
       }
     }
 
@@ -100,11 +82,11 @@ export class ChatClient extends ApiClient {
    */
   async searchChats(
     params: ChatSearchParams = {},
-  ): Promise<ChatSearchResponse> {
+  ): Promise<ApiResponse<ChatResponseData>> {
     try {
       const query = this.paramsToQueryString(params);
 
-      return this.request<ChatResponseData>({
+      return await this.request<ChatResponseData>({
         url: `/open-apis/im/v1/chats/search${query}`,
         method: 'GET',
       });
@@ -119,11 +101,13 @@ export class ChatClient extends ApiClient {
    * @param params - List parameters
    * @returns List of chats
    */
-  async getChats(params: ChatListParams = {}): Promise<ChatListResponse> {
+  async getChats(
+    params: ChatListParams = {},
+  ): Promise<ApiResponse<ChatResponseData>> {
     try {
       const query = this.paramsToQueryString(params);
 
-      return this.request<ChatResponseData>({
+      return await this.request<ChatResponseData>({
         url: `/open-apis/im/v1/chats${query}`,
         method: 'GET',
       });

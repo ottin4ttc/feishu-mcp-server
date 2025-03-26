@@ -1,11 +1,9 @@
-import { fillApiPath } from '@/utils/index.js';
 /**
  * Bot Client for FeiShu
  *
  * API client specializing in bot operations
  */
-import { ApiClient } from '../api-client.js';
-import type { ApiResponse } from '../api-client.js';
+import { ApiClient, type ApiResponse } from '@/client/api-client.js';
 
 /**
  * Message types supported by bots
@@ -32,6 +30,13 @@ export interface MessageResponse {
 }
 
 /**
+ * Bot information response
+ */
+export interface BotInfoResponse {
+  bot: Record<string, unknown>;
+}
+
+/**
  * Bot client for FeiShu
  *
  * Provides methods for sending messages and retrieving bot information
@@ -50,40 +55,32 @@ export class BotClient extends ApiClient {
     content: string | Record<string, unknown>,
     msgType: MessageType,
   ): Promise<ApiResponse<MessageResponse>> {
-    // Format the message content based on type
-    let formattedContent: Record<string, unknown>;
+    try {
+      // Format the message content based on type
+      let formattedContent: Record<string, unknown>;
 
-    if (msgType === MessageType.TEXT) {
-      formattedContent = { text: content };
-    } else if (msgType === MessageType.INTERACTIVE) {
-      formattedContent =
-        typeof content === 'string'
-          ? { card: JSON.parse(content) }
-          : { card: content };
-    } else {
-      formattedContent = typeof content === 'string' ? { content } : content;
+      if (msgType === MessageType.TEXT) {
+        formattedContent = { text: content };
+      } else if (msgType === MessageType.INTERACTIVE) {
+        formattedContent =
+          typeof content === 'string'
+            ? { card: JSON.parse(content) }
+            : { card: content };
+      } else {
+        formattedContent = typeof content === 'string' ? { content } : content;
+      }
+
+      return await this.request<MessageResponse>({
+        method: 'POST',
+        url: '/open-apis/im/v1/messages',
+        data: {
+          receive_id: chatId,
+          content: JSON.stringify(formattedContent),
+          msg_type: msgType,
+        },
+      });
+    } catch (error) {
+      return this.handleRequestError(error);
     }
-
-    return this.request<MessageResponse>({
-      method: 'POST',
-      url: fillApiPath('/open-apis/im/v1/messages'),
-      data: {
-        receive_id: chatId,
-        content: JSON.stringify(formattedContent),
-        msg_type: msgType,
-      },
-    });
-  }
-
-  /**
-   * Get bot information
-   *
-   * @returns Bot information
-   */
-  async getBotInfo(): Promise<ApiResponse<{ bot: Record<string, unknown> }>> {
-    return this.request({
-      method: 'GET',
-      url: fillApiPath('/open-apis/bot/v3/info'),
-    });
   }
 }

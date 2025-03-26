@@ -13,3 +13,6 @@ export * from './documents/document-client.js';
 
 // Export bot clients
 export * from './bots/bot-client.js';
+
+// Export sheet clients
+export * from './sheets/sheet-client.js';

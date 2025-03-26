@@ -85,35 +85,4 @@ export class DocumentService {
       );
     }
   }
-
-  /**
-   * Create a new document
-   *
-   * @param title - Document title
-   * @param folderToken - Folder token
-   * @returns Created document info
-   * @throws FeiShuApiError if API request fails
-   */
-  async createDocument(title?: string, folderToken?: string) {
-    try {
-      const response = await this.client.createDocument(title, folderToken);
-
-      if (response.code !== 0) {
-        throw new FeiShuApiError(
-          `Failed to create document: ${response.msg}`,
-          response.code,
-        );
-      }
-
-      return response.data?.document;
-    } catch (error) {
-      if (error instanceof FeiShuApiError) {
-        throw error;
-      }
-
-      throw new FeiShuApiError(
-        `Error creating document: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
 }

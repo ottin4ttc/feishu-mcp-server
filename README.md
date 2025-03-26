@@ -22,6 +22,7 @@
   - [文档操作](#文档操作)
   - [机器人操作](#机器人操作)
   - [聊天操作](#聊天操作)
+  - [多维表格操作](#多维表格操作)
 - [开发指南](#开发指南)
   - [代码规范](#代码规范)
   - [错误处理](#错误处理)
@@ -60,7 +61,6 @@
     /chats       # 聊天相关服务
   /server        # MCP服务器实现
     /tools       # MCP工具注册和实现
-      /impl      # 工具具体实现
   /typings       # 类型定义
   /utils         # 通用工具函数
   /http          # HTTP服务器实现
@@ -252,6 +252,85 @@ node dist/index.js --stdio
 
 返回：
 - 聊天的基本信息（JSON格式）
+
+### 多维表格操作
+
+#### `get_feishu_sheet_meta`
+
+获取飞书多维表格的元数据信息。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+
+返回：
+- 多维表格的元数据（JSON格式），包含表格ID、名称、修订版本、创建者、创建时间、权限等信息
+
+#### `get_feishu_sheet_tables`
+
+获取飞书多维表格中的数据表列表。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `pageSize` - 每页返回的数据表数量，可选，默认为20，最大为100
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 数据表列表（JSON格式），包含表ID、名称、字段信息等
+
+#### `get_feishu_sheet_views`
+
+获取飞书多维表格中数据表的视图列表。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `pageSize` - 每页返回的视图数量，可选，默认为20，最大为100
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 视图列表（JSON格式），包含视图ID、名称、类型和属性等信息
+
+#### `get_feishu_sheet_view`
+
+获取飞书多维表格中数据表特定视图的详细信息。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `viewId` - 视图ID，要获取详细信息的视图
+
+返回：
+- 视图详情（JSON格式），包含视图ID、名称、类型和属性等信息
+
+#### `get_feishu_sheet_records`
+
+获取飞书多维表格中的数据表记录。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `viewId` - 视图ID，可选，不指定时使用默认视图
+- `fieldIds` - 字段ID列表，可选，指定返回哪些字段
+- `filter` - 过滤条件，可选，使用FQL格式
+- `sort` - 排序条件，可选，使用JSON格式
+- `pageSize` - 每页返回的记录数量，可选，默认为20，最大为100
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 记录列表（JSON格式），包含记录ID和字段值
+
+#### `get_feishu_sheet_record`
+
+获取飞书多维表格中的单条记录。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `recordId` - 记录ID
+- `fieldIds` - 字段ID列表，可选，指定返回哪些字段
+
+返回：
+- 单条记录（JSON格式），包含记录ID和字段值
 
 ## 开发指南
 

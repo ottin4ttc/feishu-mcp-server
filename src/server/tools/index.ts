@@ -8,8 +8,8 @@ import type { LoggerType } from '@/typings/index.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerBotTools } from './bot-tools.js';
 import { registerChatTools } from './chat-tools.js';
-import { registerDocumentInfoTools } from './document-info-tools.js';
 import { registerDocumentTools } from './document-tools.js';
+import { registerSheetTools } from './sheet-tools.js';
 
 /**
  * Tool registration parameters
@@ -29,12 +29,12 @@ export function registerAllTools(params: ToolRegistryParams): void {
   // Register document-related tools
   registerDocumentTools(params);
 
-  // Register document info tools
-  registerDocumentInfoTools(params);
-
   // Register bot-related tools
   registerBotTools(params);
 
   // Register chat-related tools
   registerChatTools(params);
+
+  // Register sheet-related tools
+  registerSheetTools(params);
 }

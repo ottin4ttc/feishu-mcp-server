@@ -7,6 +7,7 @@ import type { ApiClientConfig } from '@/client/api-client.js';
 import { BotService } from './bots/bot-service.js';
 import { ChatService } from './chats/chat-service.js';
 import { DocumentService } from './documents/document-service.js';
+import { SheetService } from './sheets/sheet-service.js';
 
 // Re-export all errors
 export * from './error.js';
@@ -20,6 +21,9 @@ export * from './bots/bot-service.js';
 // Re-export chat services
 export * from './chats/chat-service.js';
 
+// Re-export sheet services
+export * from './sheets/sheet-service.js';
+
 /**
  * FeiShu services container
  *
@@ -29,6 +33,7 @@ export class FeiShuServices {
   readonly documents: DocumentService;
   readonly bots: BotService;
   readonly chats: ChatService;
+  readonly sheets: SheetService;
 
   /**
    * Initialize all FeiShu services
@@ -39,6 +44,7 @@ export class FeiShuServices {
     this.documents = new DocumentService(config);
     this.bots = new BotService(config);
     this.chats = new ChatService(config);
+    this.sheets = new SheetService(config);
   }
 }
 

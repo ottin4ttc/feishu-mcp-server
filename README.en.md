@@ -22,6 +22,7 @@ FeiShu MCP Server is a service based on the [Model Context Protocol](https://mod
   - [Document Operations](#document-operations)
   - [Bot Operations](#bot-operations)
   - [Chat Operations](#chat-operations)
+  - [Sheet Operations](#sheet-operations)
 - [Development Guide](#development-guide)
   - [Coding Standards](#coding-standards)
   - [Error Handling](#error-handling)
@@ -60,7 +61,6 @@ FeiShu MCP Server is a service based on the [Model Context Protocol](https://mod
     /chats       # Chat-related services
   /server        # MCP server implementation
     /tools       # MCP tool registration and implementation
-      /impl      # Tool implementation details
   /typings       # Type definitions
   /utils         # Common utilities
   /http          # HTTP server implementation
@@ -253,6 +253,85 @@ Parameters:
 Returns:
 - Basic chat information (JSON format)
 
+### Sheet Operations
+
+#### `get_feishu_sheet_meta`
+
+Get metadata information for a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+
+Returns:
+- Bitable metadata (JSON format), including sheet ID, name, revision, creator, creation time, permissions, etc.
+
+#### `get_feishu_sheet_tables`
+
+Get the list of tables from a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+- `pageSize` - Number of tables to return per page, optional, default: 20, max: 100
+- `pageToken` - Token for pagination, optional, used to get the next page of data
+
+Returns:
+- List of tables (JSON format), including table ID, name, field information, etc.
+
+#### `get_feishu_sheet_views`
+
+Get the list of views from a table in a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+- `tableId` - Table ID
+- `pageSize` - Number of views to return per page, optional, default: 20, max: 100
+- `pageToken` - Token for pagination, optional, used to get the next page of data
+
+Returns:
+- List of views (JSON format), including view ID, name, type, and properties
+
+#### `get_feishu_sheet_view`
+
+Get details of a specific view from a table in a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+- `tableId` - Table ID
+- `viewId` - View ID of the view to get details for
+
+Returns:
+- View details (JSON format), including view ID, name, type, and properties
+
+#### `get_feishu_sheet_records`
+
+Get records from a table in a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+- `tableId` - Table ID
+- `viewId` - View ID, optional, uses default view if not specified
+- `fieldIds` - List of field IDs to include, optional, returns all fields if not specified
+- `filter` - Filter condition in FQL format, optional
+- `sort` - Sort condition in JSON format, optional
+- `pageSize` - Number of records to return per page, optional, default: 20, max: 100
+- `pageToken` - Token for pagination, optional, used to get the next page of data
+
+Returns:
+- List of records (JSON format), including record ID and field values
+
+#### `get_feishu_sheet_record`
+
+Get a single record from a table in a FeiShu Bitable (Sheet).
+
+Parameters:
+- `appToken` - Bitable ID, typically found in the URL (e.g.: feishu.cn/base/<appToken> or feishu.cn/app/<appToken>)
+- `tableId` - Table ID
+- `recordId` - Record ID
+- `fieldIds` - List of field IDs to include, optional, returns all fields if not specified
+
+Returns:
+- Single record (JSON format), including record ID and field values
+
 ## Development Guide
 
 ### Coding Standards
@@ -434,4 +513,4 @@ Before submitting a PR, please ensure:
 - Your code passes all tests
 - You've updated relevant documentation
 - You follow the project's code style and naming conventions
-- You've added necessary unit tests 
+- You've added necessary unit tests
