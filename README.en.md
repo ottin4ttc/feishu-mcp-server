@@ -54,7 +54,6 @@ FeiShu MCP Server is a service based on the [Model Context Protocol](https://mod
     /documents   # Document-related API clients
     /bots        # Bot API clients
     /chats       # Chat-related API clients
-    /utils       # Client utilities
   /services      # Service layer implementation (business logic and error handling)
     /documents   # Document-related services
     /bots        # Bot-related services

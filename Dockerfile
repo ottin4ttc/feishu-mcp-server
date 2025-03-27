@@ -19,11 +19,6 @@ WORKDIR /app
 
 # Copy the built files from the builder
 COPY --from=builder /app/dist /app/dist
-COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/package-lock.json /app/package-lock.json
-
-# Install production dependencies only
-RUN npm ci --omit=dev
 
 # Expose any ports if necessary (e.g., 8080)
 # EXPOSE 8080

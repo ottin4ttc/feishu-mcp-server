@@ -54,7 +54,6 @@
     /documents   # 文档相关API客户端
     /bots        # 机器人API客户端
     /chats       # 聊天相关API客户端
-    /utils       # 客户端工具函数
   /services      # 服务层实现（业务逻辑和错误处理）
     /documents   # 文档相关服务
     /bots        # 机器人相关服务

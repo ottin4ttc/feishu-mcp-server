@@ -1,6 +1,5 @@
-import { formatError } from '@/common.js';
 import { API_ENDPOINT } from '@/consts/index.js';
-import { defaultLogger } from '@/logger/default-logger.js';
+import { formatError } from '@/utils/error/format.js';
 import { assert, formatUrl, internalCache } from '@/utils/index.js';
 /**
  * Unified FeiShu API Client
@@ -15,7 +14,6 @@ import {
   createResponseSuccessInterceptor,
 } from './interceptors.js';
 import { TokenManager } from './token-manager.js';
-import { formatErrors } from './utils/index.js';
 
 import type { Cache, Logger } from '@/typings/index.js';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -47,7 +45,7 @@ export class ApiClient {
   constructor(config: ApiClientConfig) {
     this.appId = config.appId;
     this.appSecret = config.appSecret;
-    this.logger = config.logger || defaultLogger;
+    this.logger = config.logger;
     this.cache = config.cache || (internalCache as unknown as Cache);
     this.disableTokenCache = config.disableTokenCache;
 
@@ -251,7 +249,7 @@ export class ApiClient {
       // Other error handling
       this.logger.error(
         `API request failed: ${config.method} ${config.url}`,
-        formatErrors(error),
+        formatError(error, { structured: true }),
       );
       throw error;
     }

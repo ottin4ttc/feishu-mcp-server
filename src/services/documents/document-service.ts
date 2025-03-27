@@ -30,7 +30,7 @@ export class DocumentService {
    * @returns Document content as string
    * @throws FeiShuApiError if API request fails
    */
-  async getDocumentContent(documentId: string): Promise<DocumentContentBO> {
+  async getDocumentContent(documentId: string): Promise<string> {
     try {
       const response = await this.client.getDocumentContent(documentId);
 
@@ -45,9 +45,7 @@ export class DocumentService {
         throw new FeiShuApiError('Document returned empty content');
       }
 
-      return {
-        content: response.data.content,
-      };
+      return response.data.content;
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;

@@ -1,44 +1,19 @@
 import type { ApiClientConfig } from '@/client/types.js';
 import { API_ENDPOINT } from '@/consts/index.js';
+import logger from '@/logger/index.js';
 import { FeiShuServices } from '@/services/index.js';
-import type { LogMessage, Logger, ServerConfig } from '@/typings/index.js';
+import type { ServerConfig } from '@/typings/index.js';
+import fastifyCors from '@fastify/cors';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fastify from 'fastify';
+import { FastifySSETransport } from './adapters/fastify-sse.js';
+import { registerAllTools } from './tools/index.js';
 /**
  * MCP Server Implementation
  *
  * Core server implementation that handles connections and tool registration.
  */
-import express from 'express';
-import type { Request, Response } from 'express';
-import { registerAllTools } from './tools/index.js';
-
-/**
- * Global ServerLogger
- *
- * Default empty implementation that will be replaced with actual implementation
- * after connection is established.
- */
-export const ServerLogger: Logger = {
-  log: (...args: LogMessage[]) => {
-    console.log(...args);
-  },
-  error: (...args: LogMessage[]) => {
-    console.error(...args);
-  },
-  warn: (...args: LogMessage[]) => {
-    console.warn(...args);
-  },
-  info: (...args: LogMessage[]) => {
-    console.info(...args);
-  },
-  debug: (...args: LogMessage[]) => {
-    console.debug(...args);
-  },
-  trace: (...args: LogMessage[]) => {
-    console.trace(...args);
-  },
-};
 
 /**
  * FeiShu MCP Server
@@ -51,7 +26,7 @@ export class FeiShuMcpServer {
   /** FeiShu services */
   private services: FeiShuServices;
   /** SSE transport instance for HTTP mode */
-  private sseTransport: SSEServerTransport | null = null;
+  private sseTransport: FastifySSETransport | null = null;
   /** Server version */
   private readonly version = '0.0.1';
 
@@ -65,8 +40,8 @@ export class FeiShuMcpServer {
     const apiConfig: ApiClientConfig = {
       appId: config.feishuAppId,
       appSecret: config.feishuAppSecret,
-      endpoint: API_ENDPOINT,
-      logger: ServerLogger,
+      apiEndpoint: API_ENDPOINT,
+      logger,
     };
 
     this.services = new FeiShuServices(apiConfig);
@@ -96,45 +71,8 @@ export class FeiShuMcpServer {
     registerAllTools({
       server: this.server,
       services: this.services,
-      logger: ServerLogger,
+      logger,
     });
-  }
-
-  /**
-   * Configure server logging
-   */
-  private setupLogging(): void {
-    ServerLogger.info = (...args: LogMessage[]) => {
-      this.server.server.sendLoggingMessage({
-        level: 'info',
-        data: args,
-      });
-    };
-
-    ServerLogger.error = (...args: LogMessage[]) => {
-      this.server.server.sendLoggingMessage({
-        level: 'error',
-        data: args,
-      });
-    };
-
-    if (ServerLogger.warn) {
-      ServerLogger.warn = (...args: LogMessage[]) => {
-        this.server.server.sendLoggingMessage({
-          level: 'warning',
-          data: args,
-        });
-      };
-    }
-
-    if (ServerLogger.debug) {
-      ServerLogger.debug = (...args: LogMessage[]) => {
-        this.server.server.sendLoggingMessage({
-          level: 'debug',
-          data: args,
-        });
-      };
-    }
   }
 
   /**
@@ -144,8 +82,7 @@ export class FeiShuMcpServer {
    */
   async connect(transport: any): Promise<void> {
     await this.server.connect(transport);
-    this.setupLogging();
-    ServerLogger.info('Server connected and ready to process requests');
+    logger.info('Server connected and ready to process requests');
   }
 
   /**
@@ -154,55 +91,66 @@ export class FeiShuMcpServer {
    * @param port - Server port
    */
   async startHttpServer(port: number): Promise<void> {
-    const app = express();
-    this.configureExpressServer(app);
-    this.startServer(app, port);
+    const app = fastify({
+      logger: true,
+      disableRequestLogging: true, // Disable default request logging as we use custom logging
+    });
+
+    await app.register(fastifyCors);
+    await this.configureFastifyServer(app);
+
+    try {
+      await app.listen({ port });
+      logger.info(`HTTP server listening on port ${port}`);
+      logger.info(`SSE endpoint available at http://localhost:${port}/sse`);
+      logger.info(
+        `Message endpoint available at http://localhost:${port}/messages`,
+      );
+    } catch (err) {
+      logger.error('Error starting server:', err);
+      process.exit(1);
+    }
   }
 
   /**
-   * Configure Express server
+   * Configure Fastify server
    *
-   * @param app - Express application
+   * @param app - Fastify instance
    */
-  private configureExpressServer(app: express.Express): void {
+  private async configureFastifyServer(app: FastifyInstance): Promise<void> {
     // SSE endpoint
-    app.get('/sse', async (req: Request, res: Response) => {
-      console.log('New SSE connection established');
-      this.sseTransport = new SSEServerTransport('/messages', res);
-      await this.server.connect(this.sseTransport);
+    app.get('/sse', async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        logger.info('New SSE connection established');
+        this.sseTransport = new FastifySSETransport('/messages', reply);
+        await this.server.connect(this.sseTransport);
+        await this.sseTransport.initializeSSE();
+        request.raw.on('close', () => {
+          logger.info('SSE connection closed');
+          this.sseTransport?.close();
+          this.sseTransport = null;
+        });
+      } catch (err) {
+        logger.error('Error establishing SSE connection:', err);
+        reply.code(500).send({ error: 'Internal Server Error' });
+      }
     });
 
     // Message handling endpoint
-    app.post('/messages', async (req: Request, res: Response) => {
-      if (!this.sseTransport) {
-        res.sendStatus(400);
-        return;
-      }
-      await this.sseTransport.handlePostMessage(req, res);
-    });
-
-    // Use console logger in HTTP mode
-    ServerLogger.info = console.log;
-    ServerLogger.error = console.error;
-    if (ServerLogger.warn) ServerLogger.warn = console.warn;
-    if (ServerLogger.debug) ServerLogger.debug = console.debug;
-  }
-
-  /**
-   * Start HTTP server
-   *
-   * @param app - Express application
-   * @param port - Server port
-   */
-  private startServer(app: express.Express, port: number): void {
-    app.listen(port, () => {
-      ServerLogger.info(`HTTP server listening on port ${port}`);
-      ServerLogger.info(
-        `SSE endpoint available at http://localhost:${port}/sse`,
-      );
-      ServerLogger.info(
-        `Message endpoint available at http://localhost:${port}/messages`,
-      );
-    });
+    app.post(
+      '/messages',
+      async (request: FastifyRequest, reply: FastifyReply) => {
+        try {
+          if (!this.sseTransport) {
+            reply.code(400).send({ error: 'No active SSE connection' });
+            return;
+          }
+          await this.sseTransport.handleFastifyRequest(request, reply);
+        } catch (err) {
+          logger.error('Error handling message:', err);
+          reply.code(500).send({ error: 'Internal Server Error' });
+        }
+      },
+    );
   }
 }

@@ -1,8 +1,8 @@
+import type { Logger } from '@/typings/index.js';
 /**
  * API Interceptors for logging and error handling
  */
-import { formatError } from '@/common.js';
-import type { Logger } from '@/typings/index.js';
+import { formatError } from '@/utils/error/format.js';
 import type {
   AxiosError,
   AxiosResponse,
@@ -65,7 +65,9 @@ export function createResponseErrorInterceptor(logger: Logger) {
           axiosError.response?.data || axiosError.message,
         );
       } else {
-        logger.error(`Request failed: ${formatError(error)}`);
+        logger.error(
+          `Request failed: ${formatError(error, { includeStack: true })}`,
+        );
       }
     }
 

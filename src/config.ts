@@ -1,5 +1,5 @@
-import { maskApiKey } from '@/common.js';
 import type { ServerConfig } from '@/typings/index.js';
+import { maskApiKey } from '@/utils/string/mask.js';
 /**
  * Configuration Management Module
  *

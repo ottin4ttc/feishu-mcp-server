@@ -51,10 +51,10 @@ export interface TokenResponse {
 export interface ApiClientConfig {
   appId: string;
   appSecret: string;
-  apiEndpoint?: string;
-  logger?: Logger;
+  logger: Logger;
   cache?: Cache;
   disableTokenCache?: boolean;
+  apiEndpoint?: string;
   httpInstance?: AxiosInstance;
 }
 

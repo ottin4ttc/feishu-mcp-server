@@ -32,24 +32,6 @@ export interface Logger {
   trace: (...msg: LogMessage[]) => void | Promise<void>;
 }
 
-/**
- * Logger type definition
- */
-export type LoggerType = Logger;
-
-export enum Domain {
-  FeiShu = 0,
-}
-
-export enum LoggerLevel {
-  fatal = 0,
-  error = 1,
-  warn = 2,
-  info = 3,
-  debug = 4,
-  trace = 5,
-}
-
 export interface ServerConfig {
   feishuAppId: string;
   feishuAppSecret: string;

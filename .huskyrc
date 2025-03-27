@@ -1,5 +1,0 @@
-# Add Husky global settings here
-# Such as paths, environment variables, etc.
-
-# If you need to debug Husky, set the following variable to 1
-# export HUSKY_DEBUG=1 
