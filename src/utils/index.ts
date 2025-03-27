@@ -4,7 +4,6 @@ export * from './pick-by.js';
 export * from './identity.js';
 export * from './string-2-base64.js';
 export * from './default-cache.js';
-export * from './format-domain.js';
 export * from './assert.js';
 export * from './format-url.js';
 export * from './camel-2-snake.js';

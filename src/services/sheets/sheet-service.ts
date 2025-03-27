@@ -4,89 +4,25 @@
  * Business logic for interacting with FeiShu Sheets (Bitable)
  */
 
-import type { ApiClientConfig } from '@/client/api-client.js';
 import { SheetClient } from '@/client/sheets/sheet-client.js';
-import type {
-  ViewData as ClientViewInfo,
-  RecordData,
-  RecordsListData,
-  TableData,
-} from '@/client/sheets/sheet-client.js';
+import type { ApiClientConfig, PaginationOptions } from '@/client/types.js';
 import { FeiShuApiError } from '@/services/error.js';
-
-/**
- * Sheet metadata structure (standardized format)
- */
-export interface SheetMetadata {
-  id: string;
-  name: string;
-  revision: number;
-  description: string;
-  status: string;
-  createdBy: string;
-  createdAt: string;
-  updatedBy: string;
-  updatedAt: string;
-  permissions: {
-    view: boolean;
-    edit: boolean;
-    manage: boolean;
-  };
-}
-
-/**
- * View information structure (standardized format)
- */
-export interface ViewInfo {
-  id: string;
-  name: string;
-  type: string;
-  property: Record<string, unknown>;
-}
-
-/**
- * View information structure (standardized format)
- */
-export interface RecordInfo {
-  id: string;
-  fields: Record<string, unknown>;
-}
-
-/**
- * Tables list structure (standardized format)
- */
-export interface TablesList {
-  tables: TableData[];
-  hasMore: boolean;
-  pageToken: string;
-  total: number;
-}
-
-/**
- * Views list structure (standardized format)
- */
-export interface ViewsList {
-  views: ViewInfo[];
-  hasMore: boolean;
-  pageToken: string;
-  total: number;
-}
-
-/**
- * Record list structure (standardized format)
- */
-export interface RecordList {
-  records: RecordInfo[];
-  hasMore: boolean;
-  pageToken: string;
-  total: number;
-}
+import { SheetMapper } from './mappers/sheet-mapper.js';
+import type {
+  RecordInfoBO,
+  RecordListBO,
+  SheetMetadataBO,
+  TableListBO,
+  ViewInfoBO,
+  ViewListBO,
+} from './types/index.js';
 
 /**
  * Service for interacting with FeiShu Sheets
  */
 export class SheetService {
   private client: SheetClient;
+  private mapper: SheetMapper;
 
   /**
    * Initialize the Sheet service
@@ -95,6 +31,7 @@ export class SheetService {
    */
   constructor(config: ApiClientConfig) {
     this.client = new SheetClient(config);
+    this.mapper = new SheetMapper();
   }
 
   /**
@@ -104,7 +41,7 @@ export class SheetService {
    * @returns Sheet metadata in a standardized format
    * @throws FeiShuApiError if the request fails or returns empty data
    */
-  async getSheetMetadata(appToken: string): Promise<SheetMetadata> {
+  async getSheetMetadata(appToken: string): Promise<SheetMetadataBO> {
     try {
       const response = await this.client.getSheetMeta(appToken);
 
@@ -115,25 +52,7 @@ export class SheetService {
         );
       }
 
-      const appData = response.data.app;
-
-      // Transform to standardized format
-      return {
-        id: appData.app_token,
-        name: appData.name,
-        revision: appData.revision,
-        description: '', // No direct description field in Bitable API
-        status: 'normal', // Assume normal status
-        createdBy: '', // No creator information in API
-        createdAt: new Date().toISOString(), // Set to current time
-        updatedBy: '', // No updater information in API
-        updatedAt: new Date().toISOString(), // Set to current time
-        permissions: {
-          view: appData.editable !== undefined ? appData.editable : true,
-          edit: appData.editable !== undefined ? appData.editable : true,
-          manage: appData.editable !== undefined ? appData.editable : true,
-        },
-      };
+      return this.mapper.toSheetMetadataBO(response.data.app);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -147,22 +66,16 @@ export class SheetService {
    * Get tables list for a Bitable (Sheet)
    *
    * @param appToken - The ID of the Bitable
-   * @param pageSize - Number of tables to return per page (optional)
-   * @param pageToken - Token for pagination (optional)
+   * @param pagination - Pagination options
    * @returns List of tables in a standardized format
    * @throws FeiShuApiError if the request fails or returns empty data
    */
   async getTablesList(
     appToken: string,
-    pageSize?: number,
-    pageToken?: string,
-  ): Promise<TablesList> {
+    pagination?: PaginationOptions,
+  ): Promise<TableListBO> {
     try {
-      const response = await this.client.getTablesList(
-        appToken,
-        pageSize,
-        pageToken,
-      );
+      const response = await this.client.getTablesList(appToken, pagination);
 
       if (response.code !== 0 || !response.data) {
         throw new FeiShuApiError(
@@ -171,23 +84,7 @@ export class SheetService {
         );
       }
 
-      const { items, has_more, page_token, total } = response.data;
-
-      console.log(items);
-
-      // Transform the tables to a standardized format
-      const tables: TableData[] = items.map((table: any) => ({
-        id: table.table_id,
-        name: table.name,
-        revision: table.revision,
-      }));
-
-      return {
-        tables,
-        hasMore: has_more,
-        pageToken: page_token,
-        total,
-      };
+      return this.mapper.toTableListBO(response.data);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -202,23 +99,20 @@ export class SheetService {
    *
    * @param appToken - The ID of the Bitable
    * @param tableId - The ID of the table
-   * @param pageSize - Number of views to return per page (optional)
-   * @param pageToken - Token for pagination (optional)
+   * @param pagination - Pagination options
    * @returns List of views in a standardized format
    * @throws FeiShuApiError if the request fails or returns empty data
    */
   async getViewsList(
     appToken: string,
     tableId: string,
-    pageSize?: number,
-    pageToken?: string,
-  ): Promise<ViewsList> {
+    pagination?: PaginationOptions,
+  ): Promise<ViewListBO> {
     try {
       const response = await this.client.getViewsList(
         appToken,
         tableId,
-        pageSize,
-        pageToken,
+        pagination,
       );
 
       if (response.code !== 0 || !response.data) {
@@ -228,22 +122,7 @@ export class SheetService {
         );
       }
 
-      const { items, has_more, page_token, total } = response.data;
-
-      // Transform the views to a standardized format
-      const views: ViewInfo[] = items.map((view: any) => ({
-        id: view.view_id,
-        name: view.view_name,
-        type: view.view_type,
-        property: view.property,
-      }));
-
-      return {
-        views,
-        hasMore: has_more,
-        pageToken: page_token,
-        total,
-      };
+      return this.mapper.toViewListBO(response.data);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -266,7 +145,7 @@ export class SheetService {
     appToken: string,
     tableId: string,
     viewId: string,
-  ): Promise<ViewInfo> {
+  ): Promise<ViewInfoBO> {
     try {
       const response = await this.client.getView(appToken, tableId, viewId);
 
@@ -277,15 +156,7 @@ export class SheetService {
         );
       }
 
-      const { view } = response.data;
-
-      // Transform the view to a standardized format
-      return {
-        id: view.view_id,
-        name: view.view_name,
-        type: view.view_type,
-        property: view.property,
-      };
+      return this.mapper.toViewInfoBO(response.data.view);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -300,35 +171,27 @@ export class SheetService {
    *
    * @param appToken - The ID of the Bitable
    * @param tableId - The ID of the table
-   * @param viewId - The ID of the view (optional)
-   * @param fieldIds - List of field IDs to include (optional)
-   * @param filter - Filter condition (optional)
-   * @param sort - Sort condition (optional)
-   * @param pageSize - Number of records to return per page (optional)
-   * @param pageToken - Token for pagination (optional)
+   * @param options - Record list options
    * @returns List of records in a standardized format
    * @throws FeiShuApiError if the request fails or returns empty data
    */
   async getRecordsList(
     appToken: string,
     tableId: string,
-    viewId?: string,
-    fieldIds?: string[],
-    filter?: string,
-    sort?: string,
-    pageSize?: number,
-    pageToken?: string,
-  ): Promise<RecordList> {
+    options: {
+      viewId?: string;
+      fieldIds?: string[];
+      filter?: string;
+      sort?: string;
+      pageSize?: number;
+      pageToken?: string;
+    } = {},
+  ): Promise<RecordListBO> {
     try {
       const response = await this.client.getRecordsList(
         appToken,
         tableId,
-        viewId,
-        fieldIds,
-        filter,
-        sort,
-        pageSize,
-        pageToken,
+        options,
       );
 
       if (response.code !== 0 || !response.data) {
@@ -338,20 +201,7 @@ export class SheetService {
         );
       }
 
-      const { items, has_more, page_token, total } = response.data;
-
-      // Transform the records to a standardized format
-      const records: RecordInfo[] = items.map((record: any) => ({
-        id: record.record_id,
-        fields: record.fields,
-      }));
-
-      return {
-        records,
-        hasMore: has_more,
-        pageToken: page_token,
-        total,
-      };
+      return this.mapper.toRecordListBO(response.data);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -367,7 +217,7 @@ export class SheetService {
    * @param appToken - The ID of the Bitable
    * @param tableId - The ID of the table
    * @param recordId - The ID of the record
-   * @param fieldIds - List of field IDs to include (optional)
+   * @param options - Record options
    * @returns Record data in a standardized format
    * @throws FeiShuApiError if the request fails or returns empty data
    */
@@ -375,14 +225,14 @@ export class SheetService {
     appToken: string,
     tableId: string,
     recordId: string,
-    fieldIds?: string[],
-  ): Promise<RecordInfo> {
+    options: { fieldIds?: string[] } = {},
+  ): Promise<RecordInfoBO> {
     try {
       const response = await this.client.getRecord(
         appToken,
         tableId,
         recordId,
-        fieldIds,
+        options,
       );
 
       if (response.code !== 0 || !response.data || !response.data.record) {
@@ -392,13 +242,7 @@ export class SheetService {
         );
       }
 
-      const { record } = response.data;
-
-      // Transform the record to a standardized format
-      return {
-        id: record.record_id,
-        fields: record.fields,
-      };
+      return this.mapper.toRecordInfoBO(response.data.record);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;

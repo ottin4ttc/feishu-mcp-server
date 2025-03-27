@@ -3,7 +3,7 @@
  *
  * Exports service implementations for FeiShu API operations.
  */
-import type { ApiClientConfig } from '@/client/api-client.js';
+import type { ApiClientConfig } from '@/client/types.js';
 import { BotService } from './bots/bot-service.js';
 import { ChatService } from './chats/chat-service.js';
 import { DocumentService } from './documents/document-service.js';

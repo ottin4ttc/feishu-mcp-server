@@ -1,5 +1,4 @@
-import { AxiosError } from '@/http/index.js';
-import { get, pick } from '@/utils/index.js';
+import { AxiosError } from 'axios';
 
 /**
  * Format error objects for logging
@@ -12,33 +11,16 @@ import { get, pick } from '@/utils/index.js';
  */
 export const formatErrors = (e: unknown): unknown[] => {
   if (e instanceof AxiosError) {
-    const { message, response, request, config } = pick(e, [
-      'message',
-      'response',
-      'request',
-      'config',
-    ]);
-
-    // Extract only relevant parts of the error for logging
-    const filteredErrorInfo = {
-      message,
-      config: pick(config, ['data', 'url', 'params', 'method']),
-      request: pick(request, ['protocol', 'host', 'path', 'method']),
-      response: pick(response, ['data', 'status', 'statusText']),
+    const errorInfo = {
+      message: e.message,
+      status: e.response?.status,
+      statusText: e.response?.statusText,
+      url: e.config?.url,
+      method: e.config?.method,
+      data: e.response?.data,
     };
 
-    const errors = [filteredErrorInfo];
-
-    // Add specific error details from the response if available
-    const specificError = get(e, 'response.data');
-    if (specificError) {
-      errors.push({
-        ...specificError,
-        ...(specificError.error ? specificError.error : {}),
-      });
-    }
-
-    return errors;
+    return [errorInfo];
   }
 
   return [e];

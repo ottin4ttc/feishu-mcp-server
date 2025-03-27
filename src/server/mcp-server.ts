@@ -1,4 +1,5 @@
-import { type ApiClientConfig, ApiEndpoint } from '@/client/api-client.js';
+import type { ApiClientConfig } from '@/client/types.js';
+import { API_ENDPOINT } from '@/consts/index.js';
 import { FeiShuServices } from '@/services/index.js';
 import type { LogMessage, Logger, ServerConfig } from '@/typings/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -64,7 +65,7 @@ export class FeiShuMcpServer {
     const apiConfig: ApiClientConfig = {
       appId: config.feishuAppId,
       appSecret: config.feishuAppSecret,
-      endpoint: ApiEndpoint.FEISHU,
+      endpoint: API_ENDPOINT,
       logger: ServerLogger,
     };
 

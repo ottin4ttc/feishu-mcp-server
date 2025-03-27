@@ -1,11 +1,12 @@
-import type { ApiClientConfig } from '@/client/api-client.js';
+import { BotClient, MessageType } from '@/client/index.js';
+import type { ApiClientConfig } from '@/client/types.js';
 /**
  * Bot Service
  *
  * Business logic for FeiShu bot operations.
  */
-import { BotClient, MessageType } from '@/client/bots/bot-client.js';
 import { FeiShuApiError } from '../error.js';
+import type { BotCardContentBO, BotMessageResponseBO } from './types/index.js';
 
 /**
  * Bot service for FeiShu
@@ -29,7 +30,10 @@ export class BotService {
    * @param text - Message text
    * @returns Message ID
    */
-  async sendTextMessage(chatId: string, text: string): Promise<string> {
+  async sendTextMessage(
+    chatId: string,
+    text: string,
+  ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
         chatId,
@@ -48,7 +52,9 @@ export class BotService {
         throw new FeiShuApiError('No message ID returned');
       }
 
-      return response.data.message_id;
+      return {
+        messageId: response.data.message_id,
+      };
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -69,8 +75,8 @@ export class BotService {
    */
   async sendCardMessage(
     chatId: string,
-    cardContent: Record<string, unknown>,
-  ): Promise<string> {
+    cardContent: BotCardContentBO,
+  ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
         chatId,
@@ -85,7 +91,9 @@ export class BotService {
         );
       }
 
-      return response.data?.message_id || '';
+      return {
+        messageId: response.data?.message_id || '',
+      };
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -93,34 +101,6 @@ export class BotService {
 
       throw new FeiShuApiError(
         `Error sending card: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-
-  /**
-   * Get bot information
-   *
-   * @returns Bot info
-   */
-  async getBotInfo() {
-    try {
-      const response = await this.client.getBotInfo();
-
-      if (response.code !== 0) {
-        throw new FeiShuApiError(
-          `Failed to get bot info: ${response.msg}`,
-          response.code,
-        );
-      }
-
-      return response.data?.bot;
-    } catch (error) {
-      if (error instanceof FeiShuApiError) {
-        throw error;
-      }
-
-      throw new FeiShuApiError(
-        `Error getting bot info: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

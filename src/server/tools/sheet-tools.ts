@@ -1,3 +1,11 @@
+import {
+  TOOL_GET_SHEET_META,
+  TOOL_GET_SHEET_RECORD,
+  TOOL_GET_SHEET_RECORDS,
+  TOOL_GET_SHEET_TABLES,
+  TOOL_GET_SHEET_VIEW,
+  TOOL_GET_SHEET_VIEWS,
+} from '@/consts/index.js';
 /**
  * Sheet Tools
  *
@@ -17,7 +25,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get sheet metadata
   server.tool(
-    'get_feishu_sheet_meta',
+    TOOL_GET_SHEET_META,
     'Retrieve metadata for a FeiShu Bitable (Sheet)',
     {
       appToken: z
@@ -53,7 +61,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get tables list
   server.tool(
-    'get_feishu_sheet_tables',
+    TOOL_GET_SHEET_TABLES,
     'Retrieve tables list from a FeiShu Bitable (Sheet)',
     {
       appToken: z
@@ -106,7 +114,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get views list
   server.tool(
-    'get_feishu_sheet_views',
+    TOOL_GET_SHEET_VIEWS,
     'Retrieve views list from a table in a FeiShu Bitable (Sheet)',
     {
       appToken: z
@@ -158,7 +166,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get view details
   server.tool(
-    'get_feishu_sheet_view',
+    TOOL_GET_SHEET_VIEW,
     'Retrieve details of a specific view from a table in a FeiShu Bitable (Sheet)',
     {
       appToken: z
@@ -204,7 +212,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get records list
   server.tool(
-    'get_feishu_sheet_records',
+    TOOL_GET_SHEET_RECORDS,
     'Retrieve records from a table in a FeiShu Bitable (Sheet)',
     {
       appToken: z
@@ -292,7 +300,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
 
   // Get single record
   server.tool(
-    'get_feishu_sheet_record',
+    TOOL_GET_SHEET_RECORD,
     'Retrieve a single record from a table in a FeiShu Bitable (Sheet)',
     {
       appToken: z

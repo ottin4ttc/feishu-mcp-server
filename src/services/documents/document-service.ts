@@ -1,11 +1,12 @@
-import type { ApiClientConfig } from '@/client/api-client.js';
 /**
  * Document Service
  *
- * Business logic for FeiShu document operations.
+ * Implements FeiShu Document API operations.
  */
 import { DocumentClient } from '@/client/documents/document-client.js';
+import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
+import type { DocumentContentBO, DocumentInfoBO } from './types/index.js';
 
 /**
  * Document service for FeiShu
@@ -29,7 +30,7 @@ export class DocumentService {
    * @returns Document content as string
    * @throws FeiShuApiError if API request fails
    */
-  async getDocumentContent(documentId: string): Promise<string> {
+  async getDocumentContent(documentId: string): Promise<DocumentContentBO> {
     try {
       const response = await this.client.getDocumentContent(documentId);
 
@@ -44,7 +45,9 @@ export class DocumentService {
         throw new FeiShuApiError('Document returned empty content');
       }
 
-      return response.data.content;
+      return {
+        content: response.data.content,
+      };
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -63,7 +66,7 @@ export class DocumentService {
    * @returns Document metadata
    * @throws FeiShuApiError if API request fails
    */
-  async getDocumentInfo(documentId: string) {
+  async getDocumentInfo(documentId: string): Promise<DocumentInfoBO> {
     try {
       const response = await this.client.getDocumentInfo(documentId);
 
@@ -74,7 +77,11 @@ export class DocumentService {
         );
       }
 
-      return response.data?.document;
+      if (!response.data?.document) {
+        throw new FeiShuApiError('Document info not found');
+      }
+
+      return response.data.document;
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;

@@ -3,38 +3,14 @@
  *
  * API client specializing in bot operations
  */
-import { ApiClient, type ApiResponse } from '@/client/api-client.js';
-
-/**
- * Message types supported by bots
- */
-export enum MessageType {
-  TEXT = 'text',
-  POST = 'post',
-  IMAGE = 'image',
-  INTERACTIVE = 'interactive',
-  SHARE_CHAT = 'share_chat',
-  SHARE_USER = 'share_user',
-  AUDIO = 'audio',
-  MEDIA = 'media',
-  FILE = 'file',
-  STICKER = 'sticker',
-  LOCATION = 'location',
-}
-
-/**
- * Bot message response format
- */
-export interface MessageResponse {
-  message_id: string;
-}
-
-/**
- * Bot information response
- */
-export interface BotInfoResponse {
-  bot: Record<string, unknown>;
-}
+import { ApiClient } from '@/client/api-client.js';
+import type { ApiResponse, PaginationOptions } from '@/client/types.js';
+import { MessageType } from './types/index.js';
+import type {
+  MessageResponse,
+  MessagesListParams,
+  MessagesListResponse,
+} from './types/index.js';
 
 /**
  * Bot client for FeiShu
@@ -50,37 +26,50 @@ export class BotClient extends ApiClient {
    * @param msgType - Message type
    * @returns Message response with ID
    */
-  async sendMessage(
+  sendMessage = (
     chatId: string,
     content: string | Record<string, unknown>,
     msgType: MessageType,
-  ): Promise<ApiResponse<MessageResponse>> {
-    try {
-      // Format the message content based on type
-      let formattedContent: Record<string, unknown>;
+  ): Promise<ApiResponse<MessageResponse>> => {
+    let formattedContent: Record<string, unknown>;
 
-      if (msgType === MessageType.TEXT) {
-        formattedContent = { text: content };
-      } else if (msgType === MessageType.INTERACTIVE) {
-        formattedContent =
-          typeof content === 'string'
-            ? { card: JSON.parse(content) }
-            : { card: content };
-      } else {
-        formattedContent = typeof content === 'string' ? { content } : content;
-      }
-
-      return await this.request<MessageResponse>({
-        method: 'POST',
-        url: '/open-apis/im/v1/messages',
-        data: {
-          receive_id: chatId,
-          content: JSON.stringify(formattedContent),
-          msg_type: msgType,
-        },
-      });
-    } catch (error) {
-      return this.handleRequestError(error);
+    if (msgType === MessageType.TEXT) {
+      formattedContent = { text: content };
+    } else if (msgType === MessageType.INTERACTIVE) {
+      formattedContent =
+        typeof content === 'string'
+          ? { card: JSON.parse(content) }
+          : { card: content };
+    } else {
+      formattedContent = typeof content === 'string' ? { content } : content;
     }
-  }
+
+    return this.post<MessageResponse>('/open-apis/im/v1/messages', {
+      receive_id: chatId,
+      content: JSON.stringify(formattedContent),
+      msg_type: msgType,
+    });
+  };
+
+  /**
+   * Get message list from a chat
+   *
+   * @param params - List parameters with chat_id, pagination, etc.
+   * @returns List of messages
+   */
+  getMessages = (
+    params: MessagesListParams,
+  ): Promise<ApiResponse<MessagesListResponse>> => {
+    const { page_size, page_token, ...otherParams } = params;
+    const pagination: PaginationOptions = {};
+
+    if (page_size) pagination.pageSize = page_size;
+    if (page_token) pagination.pageToken = page_token;
+
+    return this.getList<MessagesListResponse>(
+      '/open-apis/im/v1/messages',
+      pagination,
+      otherParams,
+    );
+  };
 }

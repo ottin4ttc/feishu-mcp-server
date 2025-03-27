@@ -1,7 +1,5 @@
 /**
  * FeiShu API Error Types
- *
- * Defines custom error classes for API operations.
  */
 
 /**
@@ -23,9 +21,7 @@ export class FeiShuApiError extends Error {
   }
 }
 
-/**
- * Authentication error
- */
+/** Authentication error */
 export class FeiShuAuthError extends FeiShuApiError {
   constructor(message: string, code?: number) {
     super(message, code);
@@ -33,9 +29,7 @@ export class FeiShuAuthError extends FeiShuApiError {
   }
 }
 
-/**
- * Rate limit error
- */
+/** Rate limit error */
 export class FeiShuRateLimitError extends FeiShuApiError {
   constructor(message: string, code?: number) {
     super(message, code);
@@ -43,9 +37,7 @@ export class FeiShuRateLimitError extends FeiShuApiError {
   }
 }
 
-/**
- * Permission error
- */
+/** Permission error */
 export class FeiShuPermissionError extends FeiShuApiError {
   constructor(message: string, code?: number) {
     super(message, code);

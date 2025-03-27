@@ -1,5 +1,5 @@
-# 在此处添加Husky的全局设置
-# 例如路径、环境变量等
+# Add Husky global settings here
+# Such as paths, environment variables, etc.
 
-# 如果需要调试Husky，设置以下变量为1
+# If you need to debug Husky, set the following variable to 1
 # export HUSKY_DEBUG=1 

@@ -58,6 +58,3 @@ if (isDirectRun()) {
     process.exit(1);
   });
 }
-
-// Export document client
-export * from './client/documents/document-client.js';

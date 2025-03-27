@@ -1,32 +1,32 @@
-# 变更日志
+# Changelog
 
-所有对项目的显著变更都将记录在此文件中。
+All notable changes to this project will be documented in this file.
 
-格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
-此项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.0.1] - 2023-06-01
 
-### 新增功能
+### Added
 
-- 初始版本发布
-- 支持飞书文档读取功能
-  - 获取文档原始内容 (`get_feishu_doc_raw`)
-  - 获取文档元数据 (`get_feishu_doc_info`)
-- 支持飞书机器人消息功能
-  - 发送文本消息 (`send_feishu_text_message`)
-  - 发送交互卡片 (`send_feishu_card`)
-- 双模式支持
-  - STDIO模式用于CLI环境
-  - HTTP模式用于Web服务
-- 模块化架构，便于扩展
+- Initial release
+- Support for FeiShu document reading
+  - Get raw document content (`get_feishu_doc_raw`)
+  - Get document metadata (`get_feishu_doc_info`)
+- Support for FeiShu bot messaging
+  - Send text messages (`send_feishu_text_message`)
+  - Send interactive cards (`send_feishu_card`)
+- Dual mode support
+  - STDIO mode for CLI environment
+  - HTTP mode for web services
+- Modular architecture for easy extension
 
-### 改进
+### Improved
 
-- 完善错误处理机制
-- 优化API客户端结构
-- 改进服务器日志系统
+- Enhanced error handling mechanism
+- Optimized API client structure
+- Improved server logging system
 
-### 修复
+### Fixed
 
-- 首次发布，暂无修复项 
+- Initial release, no fixes yet 

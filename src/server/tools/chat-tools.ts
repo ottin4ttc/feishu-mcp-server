@@ -1,3 +1,4 @@
+import { TOOL_GET_CHATS, TOOL_SEARCH_CHATS } from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
 /**
  * Chat Tools Registry
@@ -19,7 +20,7 @@ export function registerChatTools(params: ToolRegistryParams): void {
 
   // Search chats tool
   server.tool(
-    'search_chats',
+    TOOL_SEARCH_CHATS,
     'Search for groups visible to the user or bot',
     {
       query: z.string().optional().describe('Search keyword'),
@@ -84,7 +85,7 @@ export function registerChatTools(params: ToolRegistryParams): void {
 
   // Get chats tool
   server.tool(
-    'get_chats',
+    TOOL_GET_CHATS,
     'Get the list of groups that the user or bot belongs to',
     {
       page_token: z

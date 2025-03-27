@@ -1,3 +1,4 @@
+import { TOOL_GET_DOCUMENT, TOOL_GET_DOCUMENT_RAW } from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
 /**
  * Document Tools
@@ -17,7 +18,7 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
 
   // Get document raw content
   server.tool(
-    'get_feishu_doc_raw',
+    TOOL_GET_DOCUMENT_RAW,
     'Retrieve raw content from a FeiShu document by ID',
     {
       docId: z
@@ -59,7 +60,7 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
 
   // Get document metadata
   server.tool(
-    'get_feishu_doc_info',
+    TOOL_GET_DOCUMENT,
     'Retrieve metadata for a FeiShu document',
     {
       docId: z.string().describe('The document ID to get information about'),

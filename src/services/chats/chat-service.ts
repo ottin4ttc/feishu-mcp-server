@@ -1,4 +1,3 @@
-import type { ApiClientConfig } from '@/client/api-client.js';
 /**
  * Chat Service
  *
@@ -10,7 +9,13 @@ import {
   type ChatListParams,
   type ChatSearchParams,
 } from '@/client/chats/chat-client.js';
+import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
+import type {
+  ChatListOptionsBO,
+  ChatResultBO,
+  ChatSearchOptionsBO,
+} from './types/index.js';
 
 /**
  * Chat search options
@@ -62,7 +67,7 @@ export class ChatService {
    * @returns List of chats matching the search criteria
    * @throws FeiShuApiError if API request fails
    */
-  async searchChats(options: ChatSearchOptions = {}): Promise<ChatResult> {
+  async searchChats(options: ChatSearchOptionsBO = {}): Promise<ChatResultBO> {
     try {
       const { query, pageToken, pageSize, userIdType } = options;
 
@@ -111,7 +116,7 @@ export class ChatService {
    * @returns List of chats the user or bot belongs to
    * @throws FeiShuApiError if API request fails
    */
-  async getChats(options: ChatListOptions = {}): Promise<ChatResult> {
+  async getChats(options: ChatListOptionsBO = {}): Promise<ChatResultBO> {
     try {
       const { pageToken, pageSize, userIdType } = options;
 

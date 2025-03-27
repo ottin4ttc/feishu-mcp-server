@@ -39,7 +39,6 @@ export type LoggerType = Logger;
 
 export enum Domain {
   FeiShu = 0,
-  Lark = 1,
 }
 
 export enum LoggerLevel {

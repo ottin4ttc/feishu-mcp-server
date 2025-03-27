@@ -5,14 +5,11 @@
   "scripts": {
     "check": "biome check --write",
     "format": "biome format --write",
-    "build": "tsx ./scripts/build.ts",
-    "build:publish": "tsx ./scripts/prepublish.ts",
+    "build": "tsup",
     "start": "nodemon",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "prepare": "husky",
-    "pre-commit": "lint-staged",
-    "lint": "biome check .",
-    "lint:fix": "biome check --apply ."
+    "pre-commit": "lint-staged"
   },
   "packageManager": "pnpm@9.12.3",
   "engines": {
@@ -28,7 +25,10 @@
   "bin": {
     "feishu-mcp-server": "dist/index.js"
   },
-  "keywords": ["feishu", "mcp"],
+  "keywords": [
+    "feishu",
+    "mcp"
+  ],
   "author": "yang.leijun@gmail.com",
   "license": "MIT",
   "private": true,
@@ -49,7 +49,6 @@
     "@types/qs": "6.9.16",
     "@types/yargs": "17.0.33",
     "express": "4.21.2",
-    "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "nodemon": "3.1.9",
     "tsup": "8.4.0",
@@ -58,13 +57,18 @@
     "zx": "8.4.1"
   },
   "lint-staged": {
-    "*.{js,ts}": ["biome check --apply", "biome format --write"]
+    "*.{js,ts}": [
+      "biome check --apply",
+      "biome format --write"
+    ]
   },
   "resolutions": {
     "axios": "1.8.4"
   },
   "tsup": {
-    "entry": ["src/index.ts"],
+    "entry": [
+      "src/index.ts"
+    ],
     "format": "esm",
     "splitting": false,
     "sourcemap": false,

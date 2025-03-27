@@ -151,7 +151,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# 不忽略husky钩子
+# Don't ignore husky hooks
 !.husky
 !.husky/*
 !.husky/_/*

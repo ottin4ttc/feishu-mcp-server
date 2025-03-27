@@ -1,3 +1,4 @@
+import { TOOL_SEND_CARD, TOOL_SEND_TEXT_MESSAGE } from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
 /**
  * Bot Tools
@@ -17,7 +18,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
 
   // Send text message
   server.tool(
-    'send_feishu_text_message',
+    TOOL_SEND_TEXT_MESSAGE,
     'Send a text message to a FeiShu chat via bot',
     {
       chatId: z.string().describe('The chat ID to send the message to'),
@@ -53,7 +54,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
 
   // Send interactive card
   server.tool(
-    'send_feishu_card',
+    TOOL_SEND_CARD,
     'Send an interactive card to a FeiShu chat',
     {
       chatId: z.string().describe('The chat ID to send the card to'),
@@ -61,7 +62,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
     },
     async ({ chatId, cardContent }) => {
       try {
-        let cardJson: object;
+        let cardJson: Record<string, unknown>;
 
         // Parse card content
         try {
