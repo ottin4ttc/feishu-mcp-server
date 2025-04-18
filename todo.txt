@@ -1,0 +1,134 @@
+# Feishu API Integration Todo List
+
+## API Optimizations
+
+- [x] Optimize: Bot sendMessage API (POST /open-apis/im/v1/messages)
+  - Add missing query parameter: receive_id_type=chat_id
+  - Update client, service, and tool layers
+  - Add test cases
+
+## API Implementations
+
+### Messaging APIs
+- [x] Implement: Reply to message (POST /open-apis/im/v1/messages/:message_id/reply)
+  - Parameters: message_id, content, msg_type
+  - Response: message_id
+  - Add test cases
+
+- [x] Implement: Edit message (PUT /open-apis/im/v1/messages/:message_id)
+  - Parameters: message_id, content
+  - Response: message_id
+  - Add test cases
+
+- [x] Implement: Forward message (POST /open-apis/im/v1/messages/:message_id/forward)
+  - Parameters: message_id, receive_id, receive_id_type
+  - Response: message_id
+  - Add test cases
+
+- [x] Implement: Get message read status (GET /open-apis/im/v1/messages/:message_id/read_users)
+  - Parameters: message_id, page_size, page_token
+  - Response: items (list of users), page_token
+  - Add test cases
+
+### Chat APIs
+- [x] Implement: Create chat (POST /open-apis/im/v1/chats)
+  - Parameters: name, description, user_ids, bot_ids, etc.
+  - Response: chat_id
+  - Add test cases
+
+- [x] Implement: Get chat info (GET /open-apis/im/v1/chats/:chat_id)
+  - Parameters: chat_id
+  - Response: chat details
+  - Add test cases
+  - Implemented client, service, and MCP tool layers
+
+- [ ] Implement: Update chat info (PUT /open-apis/im/v1/chats/:chat_id)
+  - Parameters: chat_id, name, description, etc.
+  - Response: chat_id
+  - Add test cases
+
+- [ ] Implement: Add chat members (POST /open-apis/im/v1/chats/:chat_id/members)
+  - Parameters: chat_id, id_list, member_type
+  - Response: invalid_id_list
+  - Add test cases
+
+- [ ] Implement: Remove chat members (DELETE /open-apis/im/v1/chats/:chat_id/members)
+  - Parameters: chat_id, id_list, member_type
+  - Response: invalid_id_list
+  - Add test cases
+
+### Document APIs
+- [ ] Implement: Update document (PUT /open-apis/docx/v1/documents/:document_id)
+  - Parameters: document_id, title, folder_token
+  - Response: document details
+  - Add test cases
+
+- [ ] Implement: Delete document (DELETE /open-apis/docx/v1/documents/:document_id)
+  - Parameters: document_id
+  - Response: success status
+  - Add test cases
+
+- [ ] Implement: Get document blocks (GET /open-apis/docx/v1/documents/:document_id/blocks)
+  - Parameters: document_id, page_size, page_token
+  - Response: items (list of blocks), page_token
+  - Add test cases
+
+### Sheet APIs
+- [ ] Implement: Create record (POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records)
+  - Parameters: app_token, table_id, fields
+  - Response: record details
+  - Add test cases
+
+- [ ] Implement: Update record (PUT /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
+  - Parameters: app_token, table_id, record_id, fields
+  - Response: record details
+  - Add test cases
+
+- [ ] Implement: Delete record (DELETE /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
+  - Parameters: app_token, table_id, record_id
+  - Response: success status
+  - Add test cases
+
+### User APIs
+- [ ] Implement: Get user info (GET /open-apis/contact/v3/users/:user_id)
+  - Parameters: user_id, user_id_type
+  - Response: user details
+  - Add test cases
+
+- [ ] Implement: Get user list (GET /open-apis/contact/v3/users)
+  - Parameters: department_id, page_size, page_token
+  - Response: items (list of users), page_token
+  - Add test cases
+
+### Department APIs
+- [ ] Implement: Get department info (GET /open-apis/contact/v3/departments/:department_id)
+  - Parameters: department_id
+  - Response: department details
+  - Add test cases
+
+- [ ] Implement: Get department list (GET /open-apis/contact/v3/departments)
+  - Parameters: parent_department_id, page_size, page_token
+  - Response: items (list of departments), page_token
+  - Add test cases
+
+### Calendar APIs
+- [ ] Implement: Get calendar list (GET /open-apis/calendar/v4/calendars)
+  - Parameters: page_size, page_token
+  - Response: items (list of calendars), page_token
+  - Add test cases
+
+- [ ] Implement: Get calendar events (GET /open-apis/calendar/v4/calendars/:calendar_id/events)
+  - Parameters: calendar_id, start_time, end_time, page_size, page_token
+  - Response: items (list of events), page_token
+  - Add test cases
+
+### Task APIs
+- [ ] Implement: Get task list (GET /open-apis/task/v1/tasks)
+  - Parameters: page_size, page_token
+  - Response: items (list of tasks), page_token
+  - Add test cases
+
+- [ ] Implement: Create task (POST /open-apis/task/v1/tasks)
+  - Parameters: summary, description, due, etc.
+  - Response: task details
+  - Add test cases
