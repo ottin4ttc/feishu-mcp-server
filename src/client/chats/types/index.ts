@@ -134,3 +134,19 @@ export interface UpdateChatParams {
 export interface UpdateChatResponse {
   chat_id: string;
 }
+
+/**
+ * Add chat members parameters
+ */
+export interface AddChatMembersParams {
+  id_list: string[];
+  member_type?: string;
+  user_id_type?: string;
+}
+
+/**
+ * Add chat members response
+ */
+export interface AddChatMembersResponse {
+  invalid_id_list?: string[];
+}
