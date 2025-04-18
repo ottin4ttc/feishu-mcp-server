@@ -35,6 +35,14 @@ export interface ReplyMessageParams {
 }
 
 /**
+ * Edit message request parameters
+ */
+export interface EditMessageParams {
+  content: string | Record<string, unknown>;
+  msg_type: MessageType;
+}
+
+/**
  * Parameters for retrieving message list
  */
 export interface MessagesListParams {

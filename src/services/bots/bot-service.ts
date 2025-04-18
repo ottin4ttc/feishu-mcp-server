@@ -186,4 +186,86 @@ export class BotService {
       );
     }
   }
+
+  /**
+   * Edit a text message
+   *
+   * @param messageId - ID of the message to edit
+   * @param text - New message text
+   * @returns Message ID
+   */
+  async editTextMessage(
+    messageId: string,
+    text: string,
+  ): Promise<BotMessageResponseBO> {
+    try {
+      const response = await this.client.editMessage(
+        messageId,
+        text,
+        MessageType.TEXT,
+      );
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to edit message: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.message_id) {
+        throw new FeiShuApiError('No message ID returned');
+      }
+
+      return {
+        messageId: response.data.message_id,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error editing message: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Edit an interactive card message
+   *
+   * @param messageId - ID of the message to edit
+   * @param cardContent - New interactive card JSON content
+   * @returns Message ID
+   */
+  async editCardMessage(
+    messageId: string,
+    cardContent: BotCardContentBO,
+  ): Promise<BotMessageResponseBO> {
+    try {
+      const response = await this.client.editMessage(
+        messageId,
+        cardContent,
+        MessageType.INTERACTIVE,
+      );
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to edit card: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      return {
+        messageId: response.data?.message_id || '',
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error editing card: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
 }

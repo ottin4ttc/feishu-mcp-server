@@ -1,4 +1,6 @@
 import {
+  TOOL_EDIT_CARD,
+  TOOL_EDIT_TEXT_MESSAGE,
   TOOL_REPLY_CARD,
   TOOL_REPLY_TEXT_MESSAGE,
   TOOL_SEND_CARD,
@@ -193,6 +195,100 @@ export function registerBotTools(params: ToolRegistryParams): void {
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error replying with card: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  // Edit text message
+  server.tool(
+    TOOL_EDIT_TEXT_MESSAGE,
+    'Edit a FeiShu text message',
+    {
+      messageId: z.string().describe('The message ID to edit'),
+      text: z.string().describe('The new text content of the message'),
+    },
+    async ({ messageId, text }) => {
+      try {
+        logger.info(`Editing message ${messageId}`);
+        const editedMessageId = await services.bots.editTextMessage(
+          messageId,
+          text,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Message edited successfully. Message ID: ${editedMessageId}`,
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error editing message: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  // Edit interactive card
+  server.tool(
+    TOOL_EDIT_CARD,
+    'Edit a FeiShu interactive card message',
+    {
+      messageId: z.string().describe('The message ID to edit'),
+      cardContent: z.string().describe('The new card content as JSON string'),
+    },
+    async ({ messageId, cardContent }) => {
+      try {
+        let cardJson: Record<string, unknown>;
+
+        // Parse card content
+        try {
+          cardJson = JSON.parse(cardContent);
+        } catch (e) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: `Invalid card JSON: ${e instanceof Error ? e.message : String(e)}`,
+              },
+            ],
+          };
+        }
+
+        logger.info(`Editing message ${messageId} with card`);
+        const editedMessageId = await services.bots.editCardMessage(
+          messageId,
+          cardJson,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Card message edited successfully. Message ID: ${editedMessageId}`,
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error editing card message: ${error}`;
 
         logger.error(errorMessage);
 

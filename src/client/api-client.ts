@@ -173,6 +173,26 @@ export class ApiClient {
   }
 
   /**
+   * Send PUT request
+   */
+  protected async put<T = unknown>(
+    url: string,
+    data?: unknown,
+    params?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(
+      {
+        url,
+        method: 'PUT',
+        data,
+        params,
+      },
+      options,
+    );
+  }
+
+  /**
    * Add authorization information to request
    */
   protected async addAuthorizationHeader(

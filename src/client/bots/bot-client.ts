@@ -7,6 +7,7 @@ import { ApiClient } from '@/client/api-client.js';
 import type { ApiResponse, PaginationOptions } from '@/client/types.js';
 import { MessageType } from './types/index.js';
 import type {
+  EditMessageParams,
   MessageResponse,
   MessagesListParams,
   MessagesListResponse,
@@ -110,5 +111,37 @@ export class BotClient extends ApiClient {
         msg_type: msgType,
       },
     );
+  };
+
+  /**
+   * Edit a message
+   *
+   * @param messageId - ID of the message to edit
+   * @param content - New message content
+   * @param msgType - Message type
+   * @returns Message response with ID
+   */
+  editMessage = (
+    messageId: string,
+    content: string | Record<string, unknown>,
+    msgType: MessageType,
+  ): Promise<ApiResponse<MessageResponse>> => {
+    let formattedContent: Record<string, unknown>;
+
+    if (msgType === MessageType.TEXT) {
+      formattedContent = { text: content };
+    } else if (msgType === MessageType.INTERACTIVE) {
+      formattedContent =
+        typeof content === 'string'
+          ? { card: JSON.parse(content) }
+          : { card: content };
+    } else {
+      formattedContent = typeof content === 'string' ? { content } : content;
+    }
+
+    return this.put<MessageResponse>(`/open-apis/im/v1/messages/${messageId}`, {
+      content: JSON.stringify(formattedContent),
+      msg_type: msgType,
+    });
   };
 }
