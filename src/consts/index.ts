@@ -19,6 +19,7 @@ export const TOOL_GET_MESSAGE_READ_USERS = 'get_feishu_message_read_users';
 // Tool names for chat operations
 export const TOOL_SEARCH_CHATS = 'search_feishu_chats';
 export const TOOL_GET_CHATS = 'get_feishu_chats';
+export const TOOL_CREATE_CHAT = 'create_feishu_chat';
 
 // Tool names for document operations
 export const TOOL_GET_DOCUMENT = 'get_feishu_document';

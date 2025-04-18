@@ -38,3 +38,42 @@ export interface ChatData {
   tenant_key: string;
   chat_status?: string;
 }
+
+/**
+ * Chat list response
+ */
+export interface ChatListResponse {
+  items: Array<ChatData>;
+  page_token?: string;
+  has_more: boolean;
+}
+
+/**
+ * Create chat request parameters
+ */
+export interface CreateChatParams {
+  name: string;
+  description?: string;
+  user_ids?: string[];
+  bot_ids?: string[];
+  open_ids?: string[];
+  only_owner_add?: boolean;
+  share_allowed?: boolean;
+  only_owner_at_all?: boolean;
+  only_owner_edit?: boolean;
+  join_message_visibility?: string;
+  leave_message_visibility?: string;
+  membership_approval?: string;
+  external_ids?: string[];
+  user_id_type?: string;
+}
+
+/**
+ * Create chat response
+ */
+export interface CreateChatResponse {
+  chat_id: string;
+  invalid_user_ids?: string[];
+  invalid_bot_ids?: string[];
+  invalid_open_ids?: string[];
+}

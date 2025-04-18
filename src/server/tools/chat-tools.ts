@@ -1,4 +1,8 @@
-import { TOOL_GET_CHATS, TOOL_SEARCH_CHATS } from '@/consts/index.js';
+import {
+  TOOL_CREATE_CHAT,
+  TOOL_GET_CHATS,
+  TOOL_SEARCH_CHATS,
+} from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
 /**
  * Chat Tools Registry
@@ -77,7 +81,7 @@ export function registerChatTools(params: ToolRegistryParams): void {
         }
 
         return {
-          content: [{ type: 'text' as const, text: errorMessage }],
+          content: [{ type: 'text', text: errorMessage }],
         };
       }
     },
@@ -140,7 +144,134 @@ export function registerChatTools(params: ToolRegistryParams): void {
         }
 
         return {
-          content: [{ type: 'text' as const, text: errorMessage }],
+          content: [{ type: 'text', text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_CREATE_CHAT,
+    'Create a new chat group',
+    {
+      name: z.string().describe('Name of the chat group'),
+      description: z
+        .string()
+        .optional()
+        .describe('Description of the chat group'),
+      user_ids: z
+        .array(z.string())
+        .optional()
+        .describe('List of user IDs to add to the chat'),
+      bot_ids: z
+        .array(z.string())
+        .optional()
+        .describe('List of bot IDs to add to the chat'),
+      open_ids: z
+        .array(z.string())
+        .optional()
+        .describe('List of open IDs to add to the chat'),
+      only_owner_add: z
+        .boolean()
+        .optional()
+        .describe('Whether only the owner can add members'),
+      share_allowed: z
+        .boolean()
+        .optional()
+        .describe('Whether sharing is allowed'),
+      only_owner_at_all: z
+        .boolean()
+        .optional()
+        .describe('Whether only the owner can @all'),
+      only_owner_edit: z
+        .boolean()
+        .optional()
+        .describe('Whether only the owner can edit chat info'),
+      join_message_visibility: z
+        .string()
+        .optional()
+        .describe('Join message visibility setting'),
+      leave_message_visibility: z
+        .string()
+        .optional()
+        .describe('Leave message visibility setting'),
+      membership_approval: z
+        .string()
+        .optional()
+        .describe('Membership approval setting'),
+      external_ids: z
+        .array(z.string())
+        .optional()
+        .describe('List of external IDs'),
+      user_id_type: z.string().optional().describe('User ID type'),
+    },
+    async (args, extra) => {
+      const {
+        name,
+        description,
+        user_ids,
+        bot_ids,
+        open_ids,
+        only_owner_add,
+        share_allowed,
+        only_owner_at_all,
+        only_owner_edit,
+        join_message_visibility,
+        leave_message_visibility,
+        membership_approval,
+        external_ids,
+        user_id_type,
+      } = args;
+      try {
+        logger.info(`Creating chat with name: ${name}`);
+        const result = await services.chats.createChat(name, {
+          description,
+          user_ids,
+          bot_ids,
+          open_ids,
+          only_owner_add,
+          share_allowed,
+          only_owner_at_all,
+          only_owner_edit,
+          join_message_visibility,
+          leave_message_visibility,
+          membership_approval,
+          external_ids,
+          user_id_type,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Chat created successfully with ID: ${result.chatId}`,
+            },
+            {
+              type: 'json',
+              json: {
+                chat_id: result.chatId,
+                invalid_user_ids: result.invalidUserIds || [],
+                invalid_bot_ids: result.invalidBotIds || [],
+                invalid_open_ids: result.invalidOpenIds || [],
+              },
+            },
+          ],
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error creating chat: ${error.message}`;
+        } else {
+          logger.error('Failed to create chat:', error);
+          errorMessage = `Error creating chat: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text', text: errorMessage }],
         };
       }
     },

@@ -3,12 +3,14 @@
  *
  * Business logic for FeiShu chat operations.
  */
-import {
-  type Chat,
-  ChatClient,
-  type ChatListParams,
-  type ChatSearchParams,
-} from '@/client/chats/chat-client.js';
+import { ChatClient } from '@/client/chats/chat-client.js';
+import type {
+  ChatData,
+  ChatListParams,
+  ChatSearchParams,
+  CreateChatParams,
+  CreateChatResponse,
+} from '@/client/chats/types/index.js';
 import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
 import type {
@@ -40,7 +42,7 @@ export interface ChatListOptions {
  * Chat result interface
  */
 export interface ChatResult {
-  chats: Chat[];
+  chats: ChatData[];
   pageToken?: string;
   hasMore: boolean;
 }
@@ -91,8 +93,20 @@ export class ChatService {
         throw new FeiShuApiError('Empty response when searching chats');
       }
 
+      const chatInfos = response.data.items.map((chat) => ({
+        id: chat.chat_id,
+        avatar: chat.avatar,
+        name: chat.name,
+        description: chat.description,
+        ownerId: chat.owner_id,
+        ownerIdType: chat.owner_id_type,
+        isExternal: chat.external,
+        tenantKey: chat.tenant_key,
+        status: chat.chat_status,
+      }));
+
       return {
-        chats: response.data.items,
+        chats: chatInfos,
         pageToken: response.data.has_more
           ? response.data.page_token
           : undefined,
@@ -139,8 +153,20 @@ export class ChatService {
         throw new FeiShuApiError('Empty response when getting chats');
       }
 
+      const chatInfos = response.data.items.map((chat) => ({
+        id: chat.chat_id,
+        avatar: chat.avatar,
+        name: chat.name,
+        description: chat.description,
+        ownerId: chat.owner_id,
+        ownerIdType: chat.owner_id_type,
+        isExternal: chat.external,
+        tenantKey: chat.tenant_key,
+        status: chat.chat_status,
+      }));
+
       return {
-        chats: response.data.items,
+        chats: chatInfos,
         pageToken: response.data.has_more
           ? response.data.page_token
           : undefined,
@@ -153,6 +179,59 @@ export class ChatService {
 
       throw new FeiShuApiError(
         `Error getting chats: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Create a new chat
+   *
+   * @param name - Chat name
+   * @param options - Additional chat creation options
+   * @returns Created chat information
+   * @throws FeiShuApiError if API request fails
+   */
+  async createChat(
+    name: string,
+    options: Omit<CreateChatParams, 'name'> = {},
+  ): Promise<{
+    chatId: string;
+    invalidUserIds?: string[];
+    invalidBotIds?: string[];
+    invalidOpenIds?: string[];
+  }> {
+    try {
+      const params: CreateChatParams = {
+        name,
+        ...options,
+      };
+
+      const response = await this.client.createChat(params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to create chat: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data) {
+        throw new FeiShuApiError('Empty response when creating chat');
+      }
+
+      return {
+        chatId: response.data.chat_id,
+        invalidUserIds: response.data.invalid_user_ids,
+        invalidBotIds: response.data.invalid_bot_ids,
+        invalidOpenIds: response.data.invalid_open_ids,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error creating chat: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

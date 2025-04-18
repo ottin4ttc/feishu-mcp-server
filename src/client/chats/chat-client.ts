@@ -13,6 +13,8 @@ import type {
   ChatData,
   ChatListParams,
   ChatSearchParams,
+  CreateChatParams,
+  CreateChatResponse,
 } from './types/index.js';
 
 /**
@@ -61,5 +63,17 @@ export class ChatClient extends ApiClient {
       pagination,
       otherParams,
     );
+  };
+
+  /**
+   * Create a new chat
+   *
+   * @param params - Chat creation parameters
+   * @returns Created chat information
+   */
+  createChat = (
+    params: CreateChatParams,
+  ): Promise<ApiResponse<CreateChatResponse>> => {
+    return this.post<CreateChatResponse>('/open-apis/im/v1/chats', params);
   };
 }
