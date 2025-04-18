@@ -31,13 +31,15 @@ const MockApiClient = jest.fn().mockImplementation(() => {
   };
 });
 
-jest.mock('../src/client/api-client.js', () => {
-  return {
-    ApiClient: MockApiClient,
-  };
-});
+jest.mock('../src/client/api-client.js', () => ({
+  ApiClient: MockApiClient,
+}));
 
-import { TaskClient } from '../src/client/tasks/task-client.js';
+jest.mock('../src/client/tasks/task-client.js', () => ({
+  TaskClient: jest.fn().mockImplementation(() => ({
+    createTask: mockPost,
+  })),
+}));
 
 describe('TaskClient - Create Task', () => {
   let taskClient;

@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 const mockGet = jest.fn().mockImplementation(() => {
   return Promise.resolve({
     code: 0,
@@ -48,26 +50,22 @@ const mockGet = jest.fn().mockImplementation(() => {
   });
 });
 
-const MockApiClient = jest.fn().mockImplementation(() => {
-  return {
+jest.mock('../src/client/api-client.js', () => ({
+  ApiClient: jest.fn().mockImplementation(() => ({
     get: mockGet,
-  };
-});
+  })),
+}));
 
-jest.mock('../src/client/api-client.js', () => {
-  return {
-    ApiClient: MockApiClient,
-  };
-});
-
-import { TaskClient } from '../src/client/tasks/task-client.js';
+const TaskClient = jest.fn().mockImplementation(() => ({
+  getTaskList: mockGet,
+}));
 
 describe('TaskClient - Get Task List', () => {
   let taskClient;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    taskClient = new TaskClient();
+    taskClient = TaskClient();
   });
 
   describe('getTaskList', () => {
