@@ -77,3 +77,36 @@ export interface CreateChatResponse {
   invalid_bot_ids?: string[];
   invalid_open_ids?: string[];
 }
+
+/**
+ * Get chat info parameters
+ */
+export interface GetChatInfoParams {
+  user_id_type?: string;
+}
+
+/**
+ * Chat info response
+ */
+export interface ChatInfoResponse {
+  chat_id: string;
+  avatar: string;
+  name: string;
+  description: string;
+  owner_id: string;
+  owner_id_type: string;
+  external: boolean;
+  tenant_key: string;
+  add_member_permission?: string;
+  share_card_permission?: string;
+  at_all_permission?: string;
+  edit_permission?: string;
+  membership_approval?: string;
+  join_message_visibility?: string;
+  leave_message_visibility?: string;
+  type?: string;
+  mode_type?: string;
+  chat_tag?: string;
+  bot_manager_ids?: string[];
+  i18n_names?: Record<string, string>;
+}

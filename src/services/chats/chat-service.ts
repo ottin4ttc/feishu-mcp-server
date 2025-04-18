@@ -6,10 +6,12 @@
 import { ChatClient } from '@/client/chats/chat-client.js';
 import type {
   ChatData,
+  ChatInfoResponse,
   ChatListParams,
   ChatSearchParams,
   CreateChatParams,
   CreateChatResponse,
+  GetChatInfoParams,
 } from '@/client/chats/types/index.js';
 import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
@@ -232,6 +234,94 @@ export class ChatService {
 
       throw new FeiShuApiError(
         `Error creating chat: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Get information about a chat
+   *
+   * @param chatId - ID of the chat to get information for
+   * @param userIdType - Optional user ID type for owner_id
+   * @returns Detailed chat information
+   * @throws FeiShuApiError if API request fails
+   */
+  async getChatInfo(
+    chatId: string,
+    userIdType?: string,
+  ): Promise<{
+    id: string;
+    name: string;
+    avatar: string;
+    description: string;
+    ownerId: string;
+    ownerIdType: string;
+    isExternal: boolean;
+    tenantKey: string;
+    status?: string;
+    addMemberPermission?: string;
+    shareCardPermission?: string;
+    atAllPermission?: string;
+    editPermission?: string;
+    membershipApproval?: string;
+    joinMessageVisibility?: string;
+    leaveMessageVisibility?: string;
+    type?: string;
+    modeType?: string;
+    chatTag?: string;
+    botManagerIds?: string[];
+    i18nNames?: Record<string, string>;
+  }> {
+    try {
+      const params: GetChatInfoParams = {};
+
+      if (userIdType) {
+        params.user_id_type = userIdType;
+      }
+
+      const response = await this.client.getChatInfo(chatId, params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to get chat info: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data) {
+        throw new FeiShuApiError('Empty response when getting chat info');
+      }
+
+      return {
+        id: response.data.chat_id,
+        name: response.data.name,
+        avatar: response.data.avatar,
+        description: response.data.description,
+        ownerId: response.data.owner_id,
+        ownerIdType: response.data.owner_id_type,
+        isExternal: response.data.external,
+        tenantKey: response.data.tenant_key,
+        status: response.data.chat_status,
+        addMemberPermission: response.data.add_member_permission,
+        shareCardPermission: response.data.share_card_permission,
+        atAllPermission: response.data.at_all_permission,
+        editPermission: response.data.edit_permission,
+        membershipApproval: response.data.membership_approval,
+        joinMessageVisibility: response.data.join_message_visibility,
+        leaveMessageVisibility: response.data.leave_message_visibility,
+        type: response.data.type,
+        modeType: response.data.mode_type,
+        chatTag: response.data.chat_tag,
+        botManagerIds: response.data.bot_manager_ids,
+        i18nNames: response.data.i18n_names,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error getting chat info: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

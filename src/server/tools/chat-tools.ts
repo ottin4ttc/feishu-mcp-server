@@ -1,6 +1,7 @@
 import {
   TOOL_CREATE_CHAT,
   TOOL_GET_CHATS,
+  TOOL_GET_CHAT_INFO,
   TOOL_SEARCH_CHATS,
 } from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';

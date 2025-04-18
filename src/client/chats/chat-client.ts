@@ -76,4 +76,21 @@ export class ChatClient extends ApiClient {
   ): Promise<ApiResponse<CreateChatResponse>> => {
     return this.post<CreateChatResponse>('/open-apis/im/v1/chats', params);
   };
+
+  /**
+   * Get information about a chat
+   *
+   * @param chatId - ID of the chat to get information for
+   * @param params - Optional parameters
+   * @returns Chat information
+   */
+  getChatInfo = (
+    chatId: string,
+    params?: GetChatInfoParams,
+  ): Promise<ApiResponse<ChatInfoResponse>> => {
+    return this.get<ChatInfoResponse>(
+      `/open-apis/im/v1/chats/${chatId}`,
+      params,
+    );
+  };
 }
