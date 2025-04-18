@@ -69,7 +69,7 @@
   - Response: success status
   - Add test cases
 
-- [ ] Implement: Get document blocks (GET /open-apis/docx/v1/documents/:document_id/blocks)
+- [x] Implement: Get document blocks (GET /open-apis/docx/v1/documents/:document_id/blocks)
   - Parameters: document_id, page_size, page_token
   - Response: items (list of blocks), page_token
   - Add test cases
