@@ -124,12 +124,12 @@
   - Add test cases
 
 ### Task APIs
-- [ ] Implement: Get task list (GET /open-apis/task/v1/tasks)
+- [x] Implement: Get task list (GET /open-apis/task/v1/tasks)
   - Parameters: page_size, page_token
   - Response: items (list of tasks), page_token
   - Add test cases
 
-- [ ] Implement: Create task (POST /open-apis/task/v1/tasks)
+- [x] Implement: Create task (POST /open-apis/task/v1/tasks)
   - Parameters: summary, description, due, etc.
   - Response: task details
   - Add test cases
