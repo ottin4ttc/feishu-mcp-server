@@ -50,3 +50,7 @@ export const TOOL_GET_USER_LIST = 'get_feishu_user_list';
 // Tool names for department operations
 export const TOOL_GET_DEPARTMENT_INFO = 'get_feishu_department_info';
 export const TOOL_GET_DEPARTMENT_LIST = 'get_feishu_department_list';
+
+// Tool names for calendar operations
+export const TOOL_GET_CALENDAR_LIST = 'get_feishu_calendar_list';
+export const TOOL_GET_CALENDAR_EVENTS = 'get_feishu_calendar_events';
