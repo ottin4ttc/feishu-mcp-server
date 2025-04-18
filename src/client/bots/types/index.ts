@@ -43,6 +43,14 @@ export interface EditMessageParams {
 }
 
 /**
+ * Forward message request parameters
+ */
+export interface ForwardMessageParams {
+  receive_id: string;
+  receive_id_type?: string;
+}
+
+/**
  * Parameters for retrieving message list
  */
 export interface MessagesListParams {

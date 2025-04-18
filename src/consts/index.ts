@@ -13,6 +13,7 @@ export const TOOL_REPLY_TEXT_MESSAGE = 'reply_feishu_text_message';
 export const TOOL_REPLY_CARD = 'reply_feishu_card';
 export const TOOL_EDIT_TEXT_MESSAGE = 'edit_feishu_text_message';
 export const TOOL_EDIT_CARD = 'edit_feishu_card';
+export const TOOL_FORWARD_MESSAGE = 'forward_feishu_message';
 
 // Tool names for chat operations
 export const TOOL_SEARCH_CHATS = 'search_feishu_chats';

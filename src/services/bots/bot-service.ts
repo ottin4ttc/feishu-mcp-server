@@ -268,4 +268,49 @@ export class BotService {
       );
     }
   }
+
+  /**
+   * Forward a message to another chat
+   *
+   * @param messageId - ID of the message to forward
+   * @param receiveId - ID of the chat to forward the message to
+   * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
+   * @returns Message ID
+   */
+  async forwardMessage(
+    messageId: string,
+    receiveId: string,
+    receiveIdType = 'chat_id',
+  ): Promise<BotMessageResponseBO> {
+    try {
+      const response = await this.client.forwardMessage(
+        messageId,
+        receiveId,
+        receiveIdType,
+      );
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to forward message: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.message_id) {
+        throw new FeiShuApiError('No message ID returned');
+      }
+
+      return {
+        messageId: response.data.message_id,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error forwarding message: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
 }

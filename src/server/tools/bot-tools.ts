@@ -1,6 +1,7 @@
 import {
   TOOL_EDIT_CARD,
   TOOL_EDIT_TEXT_MESSAGE,
+  TOOL_FORWARD_MESSAGE,
   TOOL_REPLY_CARD,
   TOOL_REPLY_TEXT_MESSAGE,
   TOOL_SEND_CARD,
@@ -289,6 +290,52 @@ export function registerBotTools(params: ToolRegistryParams): void {
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error editing card message: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_FORWARD_MESSAGE,
+    'Forward a FeiShu message to another chat',
+    {
+      messageId: z.string().describe('The message ID to forward'),
+      receiveId: z
+        .string()
+        .describe('The ID of the chat to forward the message to'),
+      receiveIdType: z
+        .string()
+        .optional()
+        .default('chat_id')
+        .describe('The type of the receive ID, defaults to chat_id'),
+    },
+    async ({ messageId, receiveId, receiveIdType }) => {
+      try {
+        logger.info(`Forwarding message ${messageId} to ${receiveId}`);
+        const forwardedMessageId = await services.bots.forwardMessage(
+          messageId,
+          receiveId,
+          receiveIdType,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Message forwarded successfully. Message ID: ${forwardedMessageId}`,
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error forwarding message: ${error}`;
 
         logger.error(errorMessage);
 

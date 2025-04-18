@@ -144,4 +144,26 @@ export class BotClient extends ApiClient {
       msg_type: msgType,
     });
   };
+
+  /**
+   * Forward a message to another chat
+   *
+   * @param messageId - ID of the message to forward
+   * @param receiveId - ID of the chat to forward the message to
+   * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
+   * @returns Message response with ID
+   */
+  forwardMessage = (
+    messageId: string,
+    receiveId: string,
+    receiveIdType = 'chat_id',
+  ): Promise<ApiResponse<MessageResponse>> => {
+    return this.post<MessageResponse>(
+      `/open-apis/im/v1/messages/${messageId}/forward`,
+      {
+        receive_id: receiveId,
+      },
+      { receive_id_type: receiveIdType },
+    );
+  };
 }
