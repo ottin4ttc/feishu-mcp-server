@@ -40,6 +40,20 @@ export interface RecordInfoBO {
 }
 
 /**
+ * Create record parameters (standardized format)
+ */
+export interface CreateRecordParamsBO {
+  fields: Record<string, unknown>;
+}
+
+/**
+ * Update record parameters (standardized format)
+ */
+export interface UpdateRecordParamsBO {
+  fields: Record<string, unknown>;
+}
+
+/**
  * Tables list structure (standardized format)
  */
 export interface TableListBO {

@@ -1,10 +1,13 @@
 import {
+  TOOL_CREATE_SHEET_RECORD,
+  TOOL_DELETE_SHEET_RECORD,
   TOOL_GET_SHEET_META,
   TOOL_GET_SHEET_RECORD,
   TOOL_GET_SHEET_RECORDS,
   TOOL_GET_SHEET_TABLES,
   TOOL_GET_SHEET_VIEW,
   TOOL_GET_SHEET_VIEWS,
+  TOOL_UPDATE_SHEET_RECORD,
 } from '@/consts/index.js';
 /**
  * Sheet Tools
@@ -83,11 +86,10 @@ export function registerSheetTools(params: ToolRegistryParams): void {
     async ({ appToken, pageSize, pageToken }) => {
       try {
         logger.info(`Getting tables list for Bitable ${appToken}`);
-        const tablesList = await services.sheets.getTablesList(
-          appToken,
+        const tablesList = await services.sheets.getTablesList(appToken, {
           pageSize,
           pageToken,
-        );
+        });
 
         return {
           content: [
@@ -140,8 +142,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
         const viewsList = await services.sheets.getViewsList(
           appToken,
           tableId,
-          pageSize,
-          pageToken,
+          { pageSize, pageToken },
         );
 
         return {
@@ -267,12 +268,14 @@ export function registerSheetTools(params: ToolRegistryParams): void {
         const recordsList = await services.sheets.getRecordsList(
           appToken,
           tableId,
-          viewId,
-          fieldIds,
-          filter,
-          sort,
-          pageSize,
-          pageToken,
+          {
+            viewId,
+            fieldIds,
+            filter,
+            sort,
+            pageSize,
+            pageToken,
+          },
         );
 
         return {
@@ -328,7 +331,7 @@ export function registerSheetTools(params: ToolRegistryParams): void {
           appToken,
           tableId,
           recordId,
-          fieldIds,
+          { fieldIds },
         );
 
         return {
@@ -341,6 +344,144 @@ export function registerSheetTools(params: ToolRegistryParams): void {
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error retrieving record: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_CREATE_SHEET_RECORD,
+    'Create a new record in a table in a FeiShu Bitable (Sheet)',
+    {
+      appToken: z
+        .string()
+        .describe(
+          'The base ID of the FeiShu Bitable, typically found in a URL like feishu.cn/base/<appToken>',
+        ),
+      tableId: z.string().describe('The ID of the table to create a record in'),
+      fields: z
+        .record(z.unknown())
+        .describe('Record fields data as key-value pairs'),
+    },
+    async ({ appToken, tableId, fields }) => {
+      try {
+        logger.info(
+          `Creating record in table ${tableId} in Bitable ${appToken}`,
+        );
+        const record = await services.sheets.createRecord(appToken, tableId, {
+          fields,
+        });
+
+        return {
+          content: [
+            { type: 'text' as const, text: JSON.stringify(record, null, 2) },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error creating record: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_UPDATE_SHEET_RECORD,
+    'Update an existing record in a table in a FeiShu Bitable (Sheet)',
+    {
+      appToken: z
+        .string()
+        .describe(
+          'The base ID of the FeiShu Bitable, typically found in a URL like feishu.cn/base/<appToken>',
+        ),
+      tableId: z.string().describe('The ID of the table containing the record'),
+      recordId: z.string().describe('The ID of the record to update'),
+      fields: z
+        .record(z.unknown())
+        .describe('Updated record fields data as key-value pairs'),
+    },
+    async ({ appToken, tableId, recordId, fields }) => {
+      try {
+        logger.info(
+          `Updating record ${recordId} in table ${tableId} in Bitable ${appToken}`,
+        );
+        const record = await services.sheets.updateRecord(
+          appToken,
+          tableId,
+          recordId,
+          { fields },
+        );
+
+        return {
+          content: [
+            { type: 'text' as const, text: JSON.stringify(record, null, 2) },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error updating record: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_DELETE_SHEET_RECORD,
+    'Delete a record from a table in a FeiShu Bitable (Sheet)',
+    {
+      appToken: z
+        .string()
+        .describe(
+          'The base ID of the FeiShu Bitable, typically found in a URL like feishu.cn/base/<appToken>',
+        ),
+      tableId: z.string().describe('The ID of the table containing the record'),
+      recordId: z.string().describe('The ID of the record to delete'),
+    },
+    async ({ appToken, tableId, recordId }) => {
+      try {
+        logger.info(
+          `Deleting record ${recordId} from table ${tableId} in Bitable ${appToken}`,
+        );
+        const result = await services.sheets.deleteRecord(
+          appToken,
+          tableId,
+          recordId,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: result
+                ? `Record ${recordId} deleted successfully`
+                : `Failed to delete record ${recordId}`,
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error deleting record: ${error}`;
 
         logger.error(errorMessage);
 

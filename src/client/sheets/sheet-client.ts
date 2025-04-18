@@ -15,6 +15,11 @@ import type {
   BitableRecordData,
   BitableTableData,
   BitableViewData,
+  CreateRecordRequest,
+  CreateRecordResponse,
+  DeleteRecordResponse,
+  UpdateRecordRequest,
+  UpdateRecordResponse,
 } from './types/index.js';
 
 /**
@@ -143,6 +148,64 @@ export class SheetClient extends ApiClient {
     return this.get<BitableRecordData>(
       `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
       params,
+    );
+  };
+
+  /**
+   * Create a new record in a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param fields - Record fields data
+   * @returns Created record response
+   */
+  createRecord = (
+    appToken: string,
+    tableId: string,
+    fields: Record<string, unknown>,
+  ): Promise<ApiResponse<CreateRecordResponse>> => {
+    return this.post<CreateRecordResponse>(
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records`,
+      { fields },
+    );
+  };
+
+  /**
+   * Update an existing record in a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param recordId - The ID of the record to update
+   * @param fields - Updated record fields data
+   * @returns Updated record response
+   */
+  updateRecord = (
+    appToken: string,
+    tableId: string,
+    recordId: string,
+    fields: Record<string, unknown>,
+  ): Promise<ApiResponse<UpdateRecordResponse>> => {
+    return this.put<UpdateRecordResponse>(
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
+      { fields },
+    );
+  };
+
+  /**
+   * Delete a record from a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param recordId - The ID of the record to delete
+   * @returns Delete response
+   */
+  deleteRecord = (
+    appToken: string,
+    tableId: string,
+    recordId: string,
+  ): Promise<ApiResponse<DeleteRecordResponse>> => {
+    return this.delete<DeleteRecordResponse>(
+      `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/${recordId}`,
     );
   };
 }

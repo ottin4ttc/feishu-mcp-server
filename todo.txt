@@ -75,17 +75,17 @@
   - Add test cases
 
 ### Sheet APIs
-- [ ] Implement: Create record (POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records)
+- [x] Implement: Create record (POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records)
   - Parameters: app_token, table_id, fields
   - Response: record details
   - Add test cases
 
-- [ ] Implement: Update record (PUT /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
+- [x] Implement: Update record (PUT /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
   - Parameters: app_token, table_id, record_id, fields
   - Response: record details
   - Add test cases
 
-- [ ] Implement: Delete record (DELETE /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
+- [x] Implement: Delete record (DELETE /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id)
   - Parameters: app_token, table_id, record_id
   - Response: success status
   - Add test cases
