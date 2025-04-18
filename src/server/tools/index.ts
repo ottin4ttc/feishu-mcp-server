@@ -12,6 +12,7 @@ import { registerChatTools } from './chat-tools.js';
 import { registerDepartmentTools } from './department-tools.js';
 import { registerDocumentTools } from './document-tools.js';
 import { registerSheetTools } from './sheet-tools.js';
+import { registerTaskTools } from './task-tools.js';
 import { registerUserTools } from './user-tools.js';
 
 /**
@@ -49,4 +50,7 @@ export function registerAllTools(params: ToolRegistryParams): void {
 
   // Register calendar-related tools
   registerCalendarTools(params);
+
+  // Register task-related tools
+  registerTaskTools(params);
 }

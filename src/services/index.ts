@@ -6,6 +6,7 @@
 import type { ApiClientConfig } from '@/client/types.js';
 import { CalendarClient } from '../client/calendars/calendar-client.js';
 import { DepartmentClient } from '../client/departments/department-client.js';
+import { TaskClient } from '../client/tasks/task-client.js';
 import { UserClient } from '../client/users/user-client.js';
 import { BotService } from './bots/bot-service.js';
 import { CalendarService } from './calendars/calendar-service.js';
@@ -13,6 +14,7 @@ import { ChatService } from './chats/chat-service.js';
 import { DepartmentService } from './departments/department-service.js';
 import { DocumentService } from './documents/document-service.js';
 import { SheetService } from './sheets/sheet-service.js';
+import { TaskService } from './tasks/task-service.js';
 import { UserService } from './users/user-service.js';
 
 // Re-export all errors
@@ -43,6 +45,7 @@ export class FeiShuServices {
   readonly users: UserService;
   readonly departments: DepartmentService;
   readonly calendars: CalendarService;
+  readonly tasks: TaskService;
 
   /**
    * Initialize all FeiShu services
@@ -57,6 +60,7 @@ export class FeiShuServices {
     this.users = new UserService(new UserClient(config));
     this.departments = new DepartmentService(new DepartmentClient(config));
     this.calendars = new CalendarService(new CalendarClient(config));
+    this.tasks = new TaskService(new TaskClient(config));
   }
 }
 
