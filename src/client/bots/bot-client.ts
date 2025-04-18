@@ -44,11 +44,15 @@ export class BotClient extends ApiClient {
       formattedContent = typeof content === 'string' ? { content } : content;
     }
 
-    return this.post<MessageResponse>('/open-apis/im/v1/messages', {
-      receive_id: chatId,
-      content: JSON.stringify(formattedContent),
-      msg_type: msgType,
-    });
+    return this.post<MessageResponse>(
+      '/open-apis/im/v1/messages',
+      {
+        receive_id: chatId,
+        content: JSON.stringify(formattedContent),
+        msg_type: msgType,
+      },
+      { receive_id_type: 'chat_id' },
+    );
   };
 
   /**
