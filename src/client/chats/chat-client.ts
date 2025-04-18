@@ -10,6 +10,8 @@ import type {
  * Implements FeiShu Chat API operations.
  */
 import type {
+  AddChatMembersParams,
+  AddChatMembersResponse,
   ChatData,
   ChatInfoResponse,
   ChatListParams,
@@ -111,6 +113,23 @@ export class ChatClient extends ApiClient {
   ): Promise<ApiResponse<UpdateChatResponse>> => {
     return this.put<UpdateChatResponse>(
       `/open-apis/im/v1/chats/${chatId}`,
+      params,
+    );
+  };
+
+  /**
+   * Add members to a chat
+   *
+   * @param chatId - ID of the chat to add members to
+   * @param params - Parameters for adding members
+   * @returns Response with invalid ID list if any
+   */
+  addChatMembers = (
+    chatId: string,
+    params: AddChatMembersParams,
+  ): Promise<ApiResponse<AddChatMembersResponse>> => {
+    return this.post<AddChatMembersResponse>(
+      `/open-apis/im/v1/chats/${chatId}/members`,
       params,
     );
   };

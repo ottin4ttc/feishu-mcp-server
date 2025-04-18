@@ -1,4 +1,5 @@
 import {
+  TOOL_ADD_CHAT_MEMBERS,
   TOOL_CREATE_CHAT,
   TOOL_GET_CHATS,
   TOOL_GET_CHAT_INFO,
@@ -459,6 +460,66 @@ export function registerChatTools(params: ToolRegistryParams): void {
         } else {
           logger.error('Failed to update chat:', error);
           errorMessage = `Error updating chat: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text', text: errorMessage }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_ADD_CHAT_MEMBERS,
+    'Add members to a chat',
+    {
+      chat_id: z.string().describe('ID of the chat to add members to'),
+      id_list: z.array(z.string()).describe('List of member IDs to add'),
+      member_type: z
+        .string()
+        .optional()
+        .describe('Type of members being added (user/bot)'),
+      user_id_type: z
+        .string()
+        .optional()
+        .describe('User ID type for the members'),
+    },
+    async (args) => {
+      const { chat_id, id_list, member_type, user_id_type } = args;
+      try {
+        logger.info(`Adding members to chat: ${chat_id}`);
+        const result = await services.chats.addChatMembers(chat_id, id_list, {
+          memberType: member_type,
+          userIdType: user_id_type,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Members added successfully to chat: ${chat_id}`,
+            },
+            {
+              type: 'json',
+              json: {
+                invalid_id_list: result.invalidIdList || [],
+              },
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error adding chat members: ${error.message}`;
+        } else {
+          logger.error('Failed to add chat members:', error);
+          errorMessage = `Error adding chat members: ${error instanceof Error ? error.message : String(error)}`;
         }
 
         return {
