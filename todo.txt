@@ -102,12 +102,12 @@
   - Add test cases
 
 ### Department APIs
-- [ ] Implement: Get department info (GET /open-apis/contact/v3/departments/:department_id)
+- [x] Implement: Get department info (GET /open-apis/contact/v3/departments/:department_id)
   - Parameters: department_id
   - Response: department details
   - Add test cases
 
-- [ ] Implement: Get department list (GET /open-apis/contact/v3/departments)
+- [x] Implement: Get department list (GET /open-apis/contact/v3/departments)
   - Parameters: parent_department_id, page_size, page_token
   - Response: items (list of departments), page_token
   - Add test cases
