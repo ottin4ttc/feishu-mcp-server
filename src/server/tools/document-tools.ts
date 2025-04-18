@@ -1,6 +1,7 @@
 import {
   TOOL_DELETE_DOCUMENT,
   TOOL_GET_DOCUMENT,
+  TOOL_GET_DOCUMENT_BLOCKS,
   TOOL_GET_DOCUMENT_RAW,
   TOOL_UPDATE_DOCUMENT,
 } from '@/consts/index.js';
@@ -106,7 +107,7 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
         .optional()
         .describe('New folder token for the document'),
     },
-    async (args) => {
+    async (args, extra) => {
       const { docId, title, folderToken } = args;
       try {
         logger.info(`Updating document ${docId}`);
@@ -183,6 +184,62 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
         } else {
           logger.error('Failed to delete document:', error);
           errorMessage = `Error deleting document: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  // Get document blocks
+  server.tool(
+    TOOL_GET_DOCUMENT_BLOCKS,
+    'Get blocks from a FeiShu document',
+    {
+      docId: z.string().describe('The document ID to get blocks for'),
+      pageSize: z
+        .number()
+        .optional()
+        .describe('Number of blocks to return per page'),
+      pageToken: z.string().optional().describe('Token for pagination'),
+    },
+    async (args, extra) => {
+      const { docId, pageSize, pageToken } = args;
+      try {
+        logger.info(`Getting blocks for document ${docId}`);
+        const blocksData = await services.documents.getDocumentBlocks(
+          docId,
+          pageSize,
+          pageToken,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Retrieved ${blocksData.blocks.length} blocks from document`,
+            },
+            {
+              type: 'json' as const,
+              json: blocksData,
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error getting document blocks: ${error.message}`;
+        } else {
+          logger.error('Failed to get document blocks:', error);
+          errorMessage = `Error getting document blocks: ${error instanceof Error ? error.message : String(error)}`;
         }
 
         return {

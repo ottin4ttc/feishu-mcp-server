@@ -7,6 +7,9 @@ import { DocumentClient } from '@/client/documents/document-client.js';
 import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
 import type {
+  DocumentBlockBO,
+  DocumentBlockTypeBO,
+  DocumentBlocksBO,
   DocumentContentBO,
   DocumentInfoBO,
   UpdateDocumentParamsBO,
@@ -170,6 +173,123 @@ export class DocumentService {
 
       throw new FeiShuApiError(
         `Error deleting document: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Get document blocks
+   *
+   * @param documentId - ID of the document to get blocks for
+   * @param pageSize - Number of blocks to return per page
+   * @param pageToken - Token for pagination
+   * @returns Document blocks in business object format
+   * @throws FeiShuApiError if API request fails
+   */
+  async getDocumentBlocks(
+    documentId: string,
+    pageSize?: number,
+    pageToken?: string,
+  ): Promise<DocumentBlocksBO> {
+    try {
+      const response = await this.client.getDocumentBlocks(documentId, {
+        page_size: pageSize,
+        page_token: pageToken,
+      });
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to get document blocks: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.items) {
+        return {
+          blocks: [],
+          hasMore: false,
+        };
+      }
+
+      const blocks: DocumentBlockBO[] = response.data.items.map((block) => {
+        const blockBO: DocumentBlockBO = {
+          blockId: block.block_id,
+          parentId: block.parent_id,
+          blockType: block.block_type as unknown as DocumentBlockTypeBO,
+        };
+
+        switch (block.block_type) {
+          case 'page':
+            if (block.page) {
+              blockBO.content = block.page.title;
+            }
+            break;
+          case 'text':
+            if (block.text) {
+              blockBO.content = block.text.content;
+              blockBO.elements = block.text.elements?.map((element) => ({
+                type: element.type,
+                content: element.text_run?.content,
+                style: element.text_run?.text_element_style
+                  ? {
+                      bold: element.text_run.text_element_style.bold,
+                      italic: element.text_run.text_element_style.italic,
+                      underline: element.text_run.text_element_style.underline,
+                      strikeThrough:
+                        element.text_run.text_element_style.strike_through,
+                    }
+                  : undefined,
+              }));
+            }
+            break;
+          case 'heading1':
+          case 'heading2':
+          case 'heading3':
+          case 'bullet':
+          case 'ordered':
+          case 'quote': {
+            const contentObj = block[block.block_type];
+            if (contentObj) {
+              blockBO.content = contentObj.content;
+            }
+            break;
+          }
+          case 'code':
+            if (block.code) {
+              blockBO.content = block.code.content;
+              blockBO.language = block.code.language;
+            }
+            break;
+          case 'image':
+            if (block.image) {
+              blockBO.imageToken = block.image.token;
+              blockBO.imageWidth = block.image.width;
+              blockBO.imageHeight = block.image.height;
+            }
+            break;
+          case 'table':
+            if (block.table) {
+              blockBO.tableRows = block.table.rows;
+              blockBO.tableColumns = block.table.columns;
+            }
+            break;
+        }
+
+        return blockBO;
+      });
+
+      return {
+        blocks,
+        pageToken: response.data.page_token,
+        hasMore: response.data.has_more || false,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error getting document blocks: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

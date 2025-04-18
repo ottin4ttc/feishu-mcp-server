@@ -9,6 +9,8 @@ import type {
   DeleteDocumentResponse,
   DocumentContent,
   DocumentInfo,
+  GetDocumentBlocksParams,
+  GetDocumentBlocksResponse,
   UpdateDocumentParams,
 } from './types/index.js';
 
@@ -84,5 +86,21 @@ export class DocumentClient extends ApiClient {
   ): Promise<ApiResponse<DeleteDocumentResponse>> =>
     this.delete<DeleteDocumentResponse>(
       `/open-apis/docx/v1/documents/${documentId}`,
+    );
+
+  /**
+   * Get document blocks
+   *
+   * @param documentId - ID of the document to get blocks for
+   * @param params - Optional parameters for pagination
+   * @returns Document blocks response
+   */
+  getDocumentBlocks = (
+    documentId: string,
+    params?: GetDocumentBlocksParams,
+  ): Promise<ApiResponse<GetDocumentBlocksResponse>> =>
+    this.get<GetDocumentBlocksResponse>(
+      `/open-apis/docx/v1/documents/${documentId}/blocks`,
+      params as Record<string, unknown>,
     );
 }
