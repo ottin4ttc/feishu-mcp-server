@@ -19,3 +19,18 @@ export interface DocumentInfo {
     title?: string;
   };
 }
+
+/**
+ * Update document request parameters
+ */
+export interface UpdateDocumentParams {
+  title?: string;
+  folder_token?: string;
+}
+
+/**
+ * Delete document response
+ */
+export interface DeleteDocumentResponse {
+  deleted?: boolean;
+}

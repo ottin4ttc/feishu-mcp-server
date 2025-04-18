@@ -17,3 +17,11 @@ export interface DocumentInfoBO {
   revisionId: number;
   title: string;
 }
+
+/**
+ * Update document parameters in business object format
+ */
+export interface UpdateDocumentParamsBO {
+  title?: string;
+  folderToken?: string;
+}

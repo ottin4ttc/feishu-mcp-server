@@ -59,12 +59,12 @@
   - Add test cases
 
 ### Document APIs
-- [ ] Implement: Update document (PUT /open-apis/docx/v1/documents/:document_id)
+- [x] Implement: Update document (PUT /open-apis/docx/v1/documents/:document_id)
   - Parameters: document_id, title, folder_token
   - Response: document details
   - Add test cases
 
-- [ ] Implement: Delete document (DELETE /open-apis/docx/v1/documents/:document_id)
+- [x] Implement: Delete document (DELETE /open-apis/docx/v1/documents/:document_id)
   - Parameters: document_id
   - Response: success status
   - Add test cases

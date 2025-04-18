@@ -1,4 +1,9 @@
-import { TOOL_GET_DOCUMENT, TOOL_GET_DOCUMENT_RAW } from '@/consts/index.js';
+import {
+  TOOL_DELETE_DOCUMENT,
+  TOOL_GET_DOCUMENT,
+  TOOL_GET_DOCUMENT_RAW,
+  TOOL_UPDATE_DOCUMENT,
+} from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
 /**
  * Document Tools
@@ -85,6 +90,104 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
 
         return {
           content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_UPDATE_DOCUMENT,
+    'Update a FeiShu document',
+    {
+      docId: z.string().describe('The document ID to update'),
+      title: z.string().optional().describe('New title for the document'),
+      folderToken: z
+        .string()
+        .optional()
+        .describe('New folder token for the document'),
+    },
+    async (args) => {
+      const { docId, title, folderToken } = args;
+      try {
+        logger.info(`Updating document ${docId}`);
+        const updatedDoc = await services.documents.updateDocument(docId, {
+          title,
+          folderToken,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Document updated successfully: ${updatedDoc.title}`,
+            },
+            {
+              type: 'json' as const,
+              json: updatedDoc,
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error updating document: ${error.message}`;
+        } else {
+          logger.error('Failed to update document:', error);
+          errorMessage = `Error updating document: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_DELETE_DOCUMENT,
+    'Delete a FeiShu document',
+    {
+      docId: z.string().describe('The document ID to delete'),
+    },
+    async (args) => {
+      const { docId } = args;
+      try {
+        logger.info(`Deleting document ${docId}`);
+        const deleted = await services.documents.deleteDocument(docId);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: deleted
+                ? `Document ${docId} deleted successfully`
+                : `Document ${docId} deletion request processed but status unclear`,
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error deleting document: ${error.message}`;
+        } else {
+          logger.error('Failed to delete document:', error);
+          errorMessage = `Error deleting document: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+          isError: true,
         };
       }
     },

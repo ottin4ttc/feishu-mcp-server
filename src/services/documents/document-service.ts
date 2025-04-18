@@ -6,7 +6,11 @@
 import { DocumentClient } from '@/client/documents/document-client.js';
 import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
-import type { DocumentContentBO, DocumentInfoBO } from './types/index.js';
+import type {
+  DocumentContentBO,
+  DocumentInfoBO,
+  UpdateDocumentParamsBO,
+} from './types/index.js';
 
 /**
  * Document service for FeiShu
@@ -79,7 +83,11 @@ export class DocumentService {
         throw new FeiShuApiError('Document info not found');
       }
 
-      return response.data.document;
+      return {
+        id: response.data.document.document_id || '',
+        revisionId: response.data.document.revision_id || 0,
+        title: response.data.document.title || '',
+      };
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -87,6 +95,81 @@ export class DocumentService {
 
       throw new FeiShuApiError(
         `Error accessing document info: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Update document information
+   *
+   * @param documentId - ID of the document to update
+   * @param params - Update parameters
+   * @returns Updated document information
+   * @throws FeiShuApiError if API request fails
+   */
+  async updateDocument(
+    documentId: string,
+    params: UpdateDocumentParamsBO,
+  ): Promise<DocumentInfoBO> {
+    try {
+      const response = await this.client.updateDocument(documentId, {
+        title: params.title,
+        folder_token: params.folderToken,
+      });
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to update document: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.document) {
+        throw new FeiShuApiError('Updated document info not found');
+      }
+
+      return {
+        id: response.data.document.document_id || '',
+        revisionId: response.data.document.revision_id || 0,
+        title: response.data.document.title || '',
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error updating document: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Delete a document
+   *
+   * @param documentId - ID of the document to delete
+   * @returns True if document was deleted successfully
+   * @throws FeiShuApiError if API request fails
+   */
+  async deleteDocument(documentId: string): Promise<boolean> {
+    try {
+      const response = await this.client.deleteDocument(documentId);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to delete document: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      return response.data?.deleted || false;
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error deleting document: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

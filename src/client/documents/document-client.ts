@@ -5,7 +5,12 @@ import type { ApiResponse, PaginationOptions } from '@/client/types.js';
  *
  * API client specialized for document operations
  */
-import type { DocumentContent, DocumentInfo } from './types/index.js';
+import type {
+  DeleteDocumentResponse,
+  DocumentContent,
+  DocumentInfo,
+  UpdateDocumentParams,
+} from './types/index.js';
 
 /**
  * Document API client
@@ -51,4 +56,33 @@ export class DocumentClient extends ApiClient {
       title: options.title,
       folder_token: options.folderToken,
     });
+
+  /**
+   * Update document information
+   *
+   * @param documentId - ID of the document to update
+   * @param params - Update parameters
+   * @returns Updated document info response
+   */
+  updateDocument = (
+    documentId: string,
+    params: UpdateDocumentParams,
+  ): Promise<ApiResponse<DocumentInfo>> =>
+    this.put<DocumentInfo>(`/open-apis/docx/v1/documents/${documentId}`, {
+      title: params.title,
+      folder_token: params.folder_token,
+    });
+
+  /**
+   * Delete a document
+   *
+   * @param documentId - ID of the document to delete
+   * @returns Delete response
+   */
+  deleteDocument = (
+    documentId: string,
+  ): Promise<ApiResponse<DeleteDocumentResponse>> =>
+    this.delete<DeleteDocumentResponse>(
+      `/open-apis/docx/v1/documents/${documentId}`,
+    );
 }

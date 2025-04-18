@@ -28,6 +28,8 @@ export const TOOL_REMOVE_CHAT_MEMBERS = 'remove_feishu_chat_members';
 // Tool names for document operations
 export const TOOL_GET_DOCUMENT = 'get_feishu_document';
 export const TOOL_GET_DOCUMENT_RAW = 'get_feishu_document_raw';
+export const TOOL_UPDATE_DOCUMENT = 'update_feishu_document';
+export const TOOL_DELETE_DOCUMENT = 'delete_feishu_document';
 
 // Tool names for sheet operations
 export const TOOL_GET_SHEET_META = 'get_feishu_sheet_meta';
