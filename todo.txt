@@ -42,10 +42,11 @@
   - Add test cases
   - Implemented client, service, and MCP tool layers
 
-- [ ] Implement: Update chat info (PUT /open-apis/im/v1/chats/:chat_id)
+- [x] Implement: Update chat info (PUT /open-apis/im/v1/chats/:chat_id)
   - Parameters: chat_id, name, description, etc.
   - Response: chat_id
   - Add test cases
+  - Implemented client, service, and MCP tool layers
 
 - [ ] Implement: Add chat members (POST /open-apis/im/v1/chats/:chat_id/members)
   - Parameters: chat_id, id_list, member_type
