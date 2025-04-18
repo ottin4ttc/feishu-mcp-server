@@ -27,6 +27,47 @@ export interface BitableRecordData {
 }
 
 /**
+ * Create record request
+ */
+export interface CreateRecordRequest {
+  fields: Record<string, unknown>;
+}
+
+/**
+ * Create record response
+ */
+export interface CreateRecordResponse {
+  record: {
+    record_id: string;
+    fields: Record<string, unknown>;
+  };
+}
+
+/**
+ * Update record request
+ */
+export interface UpdateRecordRequest {
+  fields: Record<string, unknown>;
+}
+
+/**
+ * Update record response
+ */
+export interface UpdateRecordResponse {
+  record: {
+    record_id: string;
+    fields: Record<string, unknown>;
+  };
+}
+
+/**
+ * Delete record response
+ */
+export interface DeleteRecordResponse {
+  deleted: boolean;
+}
+
+/**
  * Table information structure
  */
 export interface BitableTableData {

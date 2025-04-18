@@ -1,5 +1,5 @@
 import type { FeiShuServices } from '@/services/index.js';
-import type { LoggerType } from '@/typings/index.js';
+import type { Logger } from '@/typings/index.js';
 /**
  * MCP Tools Registry
  *
@@ -7,9 +7,13 @@ import type { LoggerType } from '@/typings/index.js';
  */
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerBotTools } from './bot-tools.js';
+import { registerCalendarTools } from './calendar-tools.js';
 import { registerChatTools } from './chat-tools.js';
+import { registerDepartmentTools } from './department-tools.js';
 import { registerDocumentTools } from './document-tools.js';
 import { registerSheetTools } from './sheet-tools.js';
+import { registerTaskTools } from './task-tools.js';
+import { registerUserTools } from './user-tools.js';
 
 /**
  * Tool registration parameters
@@ -17,7 +21,7 @@ import { registerSheetTools } from './sheet-tools.js';
 export interface ToolRegistryParams {
   server: McpServer;
   services: FeiShuServices;
-  logger: LoggerType;
+  logger: Logger;
 }
 
 /**
@@ -37,4 +41,16 @@ export function registerAllTools(params: ToolRegistryParams): void {
 
   // Register sheet-related tools
   registerSheetTools(params);
+
+  // Register user-related tools
+  registerUserTools(params);
+
+  // Register department-related tools
+  registerDepartmentTools(params);
+
+  // Register calendar-related tools
+  registerCalendarTools(params);
+
+  // Register task-related tools
+  registerTaskTools(params);
 }

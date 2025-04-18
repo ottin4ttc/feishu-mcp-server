@@ -27,6 +27,51 @@ export interface MessageResponse {
 }
 
 /**
+ * Reply message request parameters
+ */
+export interface ReplyMessageParams {
+  content: string | Record<string, unknown>;
+  msg_type: MessageType;
+}
+
+/**
+ * Edit message request parameters
+ */
+export interface EditMessageParams {
+  content: string | Record<string, unknown>;
+  msg_type: MessageType;
+}
+
+/**
+ * Forward message request parameters
+ */
+export interface ForwardMessageParams {
+  receive_id: string;
+  receive_id_type?: string;
+}
+
+/**
+ * Message read users request parameters
+ */
+export interface MessageReadUsersParams {
+  page_size?: number;
+  page_token?: string;
+}
+
+/**
+ * Message read users response
+ */
+export interface MessageReadUsersResponse {
+  items: Array<{
+    user_id: string;
+    user_id_type: string;
+    read_time: string;
+  }>;
+  page_token?: string;
+  has_more: boolean;
+}
+
+/**
  * Parameters for retrieving message list
  */
 export interface MessagesListParams {

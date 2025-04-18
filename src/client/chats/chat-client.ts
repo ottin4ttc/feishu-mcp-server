@@ -10,9 +10,19 @@ import type {
  * Implements FeiShu Chat API operations.
  */
 import type {
+  AddChatMembersParams,
+  AddChatMembersResponse,
   ChatData,
+  ChatInfoResponse,
   ChatListParams,
   ChatSearchParams,
+  CreateChatParams,
+  CreateChatResponse,
+  GetChatInfoParams,
+  RemoveChatMembersParams,
+  RemoveChatMembersResponse,
+  UpdateChatParams,
+  UpdateChatResponse,
 } from './types/index.js';
 
 /**
@@ -60,6 +70,86 @@ export class ChatClient extends ApiClient {
       '/open-apis/im/v1/chats',
       pagination,
       otherParams,
+    );
+  };
+
+  /**
+   * Create a new chat
+   *
+   * @param params - Chat creation parameters
+   * @returns Created chat information
+   */
+  createChat = (
+    params: CreateChatParams,
+  ): Promise<ApiResponse<CreateChatResponse>> => {
+    return this.post<CreateChatResponse>('/open-apis/im/v1/chats', params);
+  };
+
+  /**
+   * Get information about a chat
+   *
+   * @param chatId - ID of the chat to get information for
+   * @param params - Optional parameters
+   * @returns Chat information
+   */
+  getChatInfo = (
+    chatId: string,
+    params?: GetChatInfoParams,
+  ): Promise<ApiResponse<ChatInfoResponse>> => {
+    return this.get<ChatInfoResponse>(
+      `/open-apis/im/v1/chats/${chatId}`,
+      params as Record<string, unknown>,
+    );
+  };
+
+  /**
+   * Update chat information
+   *
+   * @param chatId - ID of the chat to update
+   * @param params - Chat update parameters
+   * @returns Updated chat information
+   */
+  updateChat = (
+    chatId: string,
+    params: UpdateChatParams,
+  ): Promise<ApiResponse<UpdateChatResponse>> => {
+    return this.put<UpdateChatResponse>(
+      `/open-apis/im/v1/chats/${chatId}`,
+      params,
+    );
+  };
+
+  /**
+   * Add members to a chat
+   *
+   * @param chatId - ID of the chat to add members to
+   * @param params - Parameters for adding members
+   * @returns Response with invalid ID list if any
+   */
+  addChatMembers = (
+    chatId: string,
+    params: AddChatMembersParams,
+  ): Promise<ApiResponse<AddChatMembersResponse>> => {
+    return this.post<AddChatMembersResponse>(
+      `/open-apis/im/v1/chats/${chatId}/members`,
+      params,
+    );
+  };
+
+  /**
+   * Remove members from a chat
+   *
+   * @param chatId - ID of the chat to remove members from
+   * @param params - Parameters for removing members
+   * @returns Response with invalid ID list if any
+   */
+  removeChatMembers = (
+    chatId: string,
+    params: RemoveChatMembersParams,
+  ): Promise<ApiResponse<RemoveChatMembersResponse>> => {
+    return this.delete<RemoveChatMembersResponse>(
+      `/open-apis/im/v1/chats/${chatId}/members`,
+      params,
     );
   };
 }

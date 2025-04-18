@@ -9,10 +9,12 @@ import type { ApiClientConfig, PaginationOptions } from '@/client/types.js';
 import { FeiShuApiError } from '@/services/error.js';
 import { SheetMapper } from './mappers/sheet-mapper.js';
 import type {
+  CreateRecordParamsBO,
   RecordInfoBO,
   RecordListBO,
   SheetMetadataBO,
   TableListBO,
+  UpdateRecordParamsBO,
   ViewInfoBO,
   ViewListBO,
 } from './types/index.js';
@@ -149,14 +151,14 @@ export class SheetService {
     try {
       const response = await this.client.getView(appToken, tableId, viewId);
 
-      if (response.code !== 0 || !response.data || !response.data.view) {
+      if (response.code !== 0 || !response.data) {
         throw new FeiShuApiError(
           `Failed to get view details: ${response.msg || 'Unknown error'}`,
           response.code,
         );
       }
 
-      return this.mapper.toViewInfoBO(response.data.view);
+      return this.mapper.toViewInfoBO(response.data);
     } catch (error) {
       if (error instanceof FeiShuApiError) {
         throw error;
@@ -235,9 +237,47 @@ export class SheetService {
         options,
       );
 
-      if (response.code !== 0 || !response.data || !response.data.record) {
+      if (response.code !== 0 || !response.data) {
         throw new FeiShuApiError(
           `Failed to get record: ${response.msg || 'Unknown error'}`,
+          response.code,
+        );
+      }
+
+      return this.mapper.toRecordInfoBO(response.data);
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError('Failed to get record');
+    }
+  }
+
+  /**
+   * Create a new record in a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param params - Record creation parameters
+   * @returns Created record information
+   * @throws FeiShuApiError if the request fails
+   */
+  async createRecord(
+    appToken: string,
+    tableId: string,
+    params: CreateRecordParamsBO,
+  ): Promise<RecordInfoBO> {
+    try {
+      const response = await this.client.createRecord(
+        appToken,
+        tableId,
+        params.fields,
+      );
+
+      if (response.code !== 0 || !response.data || !response.data.record) {
+        throw new FeiShuApiError(
+          `Failed to create record: ${response.msg || 'Unknown error'}`,
           response.code,
         );
       }
@@ -248,7 +288,86 @@ export class SheetService {
         throw error;
       }
 
-      throw new FeiShuApiError('Failed to get record');
+      throw new FeiShuApiError('Failed to create record');
+    }
+  }
+
+  /**
+   * Update an existing record in a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param recordId - The ID of the record to update
+   * @param params - Record update parameters
+   * @returns Updated record information
+   * @throws FeiShuApiError if the request fails
+   */
+  async updateRecord(
+    appToken: string,
+    tableId: string,
+    recordId: string,
+    params: UpdateRecordParamsBO,
+  ): Promise<RecordInfoBO> {
+    try {
+      const response = await this.client.updateRecord(
+        appToken,
+        tableId,
+        recordId,
+        params.fields,
+      );
+
+      if (response.code !== 0 || !response.data || !response.data.record) {
+        throw new FeiShuApiError(
+          `Failed to update record: ${response.msg || 'Unknown error'}`,
+          response.code,
+        );
+      }
+
+      return this.mapper.toRecordInfoBO(response.data.record);
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError('Failed to update record');
+    }
+  }
+
+  /**
+   * Delete a record from a table
+   *
+   * @param appToken - The ID of the Bitable
+   * @param tableId - The ID of the table
+   * @param recordId - The ID of the record to delete
+   * @returns True if the record was deleted successfully
+   * @throws FeiShuApiError if the request fails
+   */
+  async deleteRecord(
+    appToken: string,
+    tableId: string,
+    recordId: string,
+  ): Promise<boolean> {
+    try {
+      const response = await this.client.deleteRecord(
+        appToken,
+        tableId,
+        recordId,
+      );
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to delete record: ${response.msg || 'Unknown error'}`,
+          response.code,
+        );
+      }
+
+      return response.data?.deleted || false;
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError('Failed to delete record');
     }
   }
 }

@@ -7,7 +7,8 @@
     "format": "biome format --write",
     "build": "tsup",
     "start": "nodemon",
-    "inspect": "pnpx @modelcontextprotocol/inspector"
+    "inspect": "pnpx @modelcontextprotocol/inspector",
+    "test": "jest"
   },
   "packageManager": "pnpm@9.12.3",
   "engines": {
@@ -23,10 +24,7 @@
   "bin": {
     "feishu-mcp-server": "dist/index.js"
   },
-  "keywords": [
-    "feishu",
-    "mcp"
-  ],
+  "keywords": ["feishu", "mcp"],
   "author": "yang.leijun@gmail.com",
   "license": "MIT",
   "private": true,
@@ -43,23 +41,28 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
     "@biomejs/biome": "1.9.4",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "22.13.11",
     "@types/qs": "6.9.16",
     "@types/yargs": "17.0.33",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "lint-staged": "15.5.0",
     "nodemon": "3.1.9",
     "simple-git-hooks": "^2.12.1",
+    "ts-jest": "^29.3.2",
     "tsup": "8.4.0",
     "tsx": "4.19.3",
     "typescript": "5.8.2",
     "zx": "8.4.1"
   },
   "lint-staged": {
-    "*.{js,ts,json,md}": [
-      "biome format --write",
-      "biome check --apply"
-    ]
+    "*.{js,ts,json,md}": ["biome format --write", "biome check --apply"]
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged",
