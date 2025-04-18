@@ -2,6 +2,7 @@ import {
   TOOL_EDIT_CARD,
   TOOL_EDIT_TEXT_MESSAGE,
   TOOL_FORWARD_MESSAGE,
+  TOOL_GET_MESSAGE_READ_USERS,
   TOOL_REPLY_CARD,
   TOOL_REPLY_TEXT_MESSAGE,
   TOOL_SEND_CARD,
@@ -336,6 +337,57 @@ export function registerBotTools(params: ToolRegistryParams): void {
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error forwarding message: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_GET_MESSAGE_READ_USERS,
+    'Get users who have read a FeiShu message',
+    {
+      messageId: z.string().describe('The message ID to get read status for'),
+      pageSize: z
+        .number()
+        .optional()
+        .describe('Number of items per page, default is 20'),
+      pageToken: z.string().optional().describe('Page token for pagination'),
+    },
+    async ({ messageId, pageSize, pageToken }) => {
+      try {
+        logger.info(`Getting read users for message ${messageId}`);
+        const readUsers = await services.bots.getMessageReadUsers(
+          messageId,
+          pageSize,
+          pageToken,
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Message read by ${readUsers.items.length} users.`,
+            },
+            {
+              type: 'json' as const,
+              json: {
+                items: readUsers.items,
+                pageToken: readUsers.pageToken,
+                hasMore: readUsers.hasMore,
+              },
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error getting message read users: ${error}`;
 
         logger.error(errorMessage);
 

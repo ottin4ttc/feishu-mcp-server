@@ -8,6 +8,8 @@ import type { ApiResponse, PaginationOptions } from '@/client/types.js';
 import { MessageType } from './types/index.js';
 import type {
   EditMessageParams,
+  MessageReadUsersParams,
+  MessageReadUsersResponse,
   MessageResponse,
   MessagesListParams,
   MessagesListResponse,
@@ -164,6 +166,29 @@ export class BotClient extends ApiClient {
         receive_id: receiveId,
       },
       { receive_id_type: receiveIdType },
+    );
+  };
+
+  /**
+   * Get users who have read a message
+   *
+   * @param messageId - ID of the message
+   * @param params - Pagination parameters
+   * @returns List of users who have read the message
+   */
+  getMessageReadUsers = (
+    messageId: string,
+    params?: MessageReadUsersParams,
+  ): Promise<ApiResponse<MessageReadUsersResponse>> => {
+    const { page_size, page_token } = params || {};
+    const pagination: PaginationOptions = {};
+
+    if (page_size) pagination.pageSize = page_size;
+    if (page_token) pagination.pageToken = page_token;
+
+    return this.getList<MessageReadUsersResponse>(
+      `/open-apis/im/v1/messages/${messageId}/read_users`,
+      pagination,
     );
   };
 }

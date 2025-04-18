@@ -313,4 +313,65 @@ export class BotService {
       );
     }
   }
+
+  /**
+   * Get users who have read a message
+   *
+   * @param messageId - ID of the message
+   * @param pageSize - Number of items per page
+   * @param pageToken - Token for pagination
+   * @returns List of users who have read the message
+   */
+  async getMessageReadUsers(
+    messageId: string,
+    pageSize?: number,
+    pageToken?: string,
+  ): Promise<{
+    items: Array<{
+      userId: string;
+      userIdType: string;
+      readTime: string;
+    }>;
+    pageToken?: string;
+    hasMore: boolean;
+  }> {
+    try {
+      const params: { page_size?: number; page_token?: string } = {};
+      if (pageSize) params.page_size = pageSize;
+      if (pageToken) params.page_token = pageToken;
+
+      const response = await this.client.getMessageReadUsers(messageId, params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to get message read users: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.items) {
+        throw new FeiShuApiError('No items returned');
+      }
+
+      return {
+        items: response.data.items.map((item) => ({
+          userId: item.user_id,
+          userIdType: item.user_id_type,
+          readTime: item.read_time,
+        })),
+        pageToken: response.data.page_token,
+        hasMore: response.data.has_more,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error getting message read users: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
 }
