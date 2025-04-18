@@ -1,6 +1,30 @@
-import { ApiClient } from '../src/client/api-client.js';
+const mockPost = jest.fn().mockImplementation(() => {
+  return Promise.resolve({
+    code: 0,
+    data: {
+      message_id: 'test_reply_message_id',
+    },
+  });
+});
+
+const MockApiClient = jest.fn().mockImplementation(() => {
+  return {
+    post: mockPost,
+  };
+});
+
+jest.mock('../src/client/api-client.js', () => {
+  return {
+    ApiClient: MockApiClient,
+  };
+});
+
 import { BotClient } from '../src/client/bots/bot-client.js';
-import { MessageType } from '../src/client/bots/types/index.js';
+
+const MessageType = {
+  TEXT: 'text',
+  INTERACTIVE: 'interactive',
+};
 
 jest.mock('../src/client/api-client.js', () => {
   return {

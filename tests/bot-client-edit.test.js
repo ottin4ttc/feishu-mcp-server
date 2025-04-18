@@ -1,23 +1,30 @@
-import { ApiClient } from '../src/client/api-client.js';
-import { BotClient } from '../src/client/bots/bot-client.js';
-import { MessageType } from '../src/client/bots/types/index.js';
+const mockPut = jest.fn().mockImplementation(() => {
+  return Promise.resolve({
+    code: 0,
+    data: {
+      message_id: 'test_edit_message_id',
+    },
+  });
+});
+
+const MockApiClient = jest.fn().mockImplementation(() => {
+  return {
+    put: mockPut,
+  };
+});
 
 jest.mock('../src/client/api-client.js', () => {
   return {
-    ApiClient: jest.fn().mockImplementation(() => {
-      return {
-        put: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            code: 0,
-            data: {
-              message_id: 'test_edit_message_id',
-            },
-          });
-        }),
-      };
-    }),
+    ApiClient: MockApiClient,
   };
 });
+
+import { BotClient } from '../src/client/bots/bot-client.js';
+
+const MessageType = {
+  TEXT: 'text',
+  INTERACTIVE: 'interactive',
+};
 
 describe('BotClient - Edit Message', () => {
   let botClient;

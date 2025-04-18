@@ -1,39 +1,48 @@
-import { ApiClient } from '../src/client/api-client.js';
-import { BotClient } from '../src/client/bots/bot-client.js';
-import { MessageType } from '../src/client/bots/types/index.js';
+const mockPost = jest.fn().mockImplementation(() => {
+  return Promise.resolve({
+    code: 0,
+    data: {
+      message_id: 'test_message_id',
+    },
+  });
+});
+
+const mockGetList = jest.fn().mockImplementation(() => {
+  return Promise.resolve({
+    code: 0,
+    data: {
+      items: [
+        {
+          message_id: 'test_message_id',
+          content: '{"text":"test message"}',
+          create_time: '1617123456789',
+        },
+      ],
+      page_token: 'next_page_token',
+      has_more: false,
+    },
+  });
+});
+
+const MockApiClient = jest.fn().mockImplementation(() => {
+  return {
+    post: mockPost,
+    getList: mockGetList,
+  };
+});
 
 jest.mock('../src/client/api-client.js', () => {
   return {
-    ApiClient: jest.fn().mockImplementation(() => {
-      return {
-        post: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            code: 0,
-            data: {
-              message_id: 'test_message_id',
-            },
-          });
-        }),
-        getList: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            code: 0,
-            data: {
-              items: [
-                {
-                  message_id: 'test_message_id',
-                  content: '{"text":"test message"}',
-                  create_time: '1617123456789',
-                },
-              ],
-              page_token: 'next_page_token',
-              has_more: false,
-            },
-          });
-        }),
-      };
-    }),
+    ApiClient: MockApiClient,
   };
 });
+
+import { BotClient } from '../src/client/bots/bot-client.js';
+
+const MessageType = {
+  TEXT: 'text',
+  INTERACTIVE: 'interactive',
+};
 
 describe('BotClient', () => {
   let botClient;
