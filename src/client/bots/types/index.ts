@@ -27,6 +27,14 @@ export interface MessageResponse {
 }
 
 /**
+ * Reply message request parameters
+ */
+export interface ReplyMessageParams {
+  content: string | Record<string, unknown>;
+  msg_type: MessageType;
+}
+
+/**
  * Parameters for retrieving message list
  */
 export interface MessagesListParams {

@@ -76,4 +76,39 @@ export class BotClient extends ApiClient {
       otherParams,
     );
   };
+
+  /**
+   * Reply to a message
+   *
+   * @param messageId - ID of the message to reply to
+   * @param content - Message content
+   * @param msgType - Message type
+   * @returns Message response with ID
+   */
+  replyMessage = (
+    messageId: string,
+    content: string | Record<string, unknown>,
+    msgType: MessageType,
+  ): Promise<ApiResponse<MessageResponse>> => {
+    let formattedContent: Record<string, unknown>;
+
+    if (msgType === MessageType.TEXT) {
+      formattedContent = { text: content };
+    } else if (msgType === MessageType.INTERACTIVE) {
+      formattedContent =
+        typeof content === 'string'
+          ? { card: JSON.parse(content) }
+          : { card: content };
+    } else {
+      formattedContent = typeof content === 'string' ? { content } : content;
+    }
+
+    return this.post<MessageResponse>(
+      `/open-apis/im/v1/messages/${messageId}/reply`,
+      {
+        content: JSON.stringify(formattedContent),
+        msg_type: msgType,
+      },
+    );
+  };
 }
