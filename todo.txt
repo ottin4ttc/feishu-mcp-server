@@ -48,12 +48,12 @@
   - Add test cases
   - Implemented client, service, and MCP tool layers
 
-- [ ] Implement: Add chat members (POST /open-apis/im/v1/chats/:chat_id/members)
+- [x] Implement: Add chat members (POST /open-apis/im/v1/chats/:chat_id/members)
   - Parameters: chat_id, id_list, member_type
   - Response: invalid_id_list
   - Add test cases
 
-- [ ] Implement: Remove chat members (DELETE /open-apis/im/v1/chats/:chat_id/members)
+- [x] Implement: Remove chat members (DELETE /open-apis/im/v1/chats/:chat_id/members)
   - Parameters: chat_id, id_list, member_type
   - Response: invalid_id_list
   - Add test cases

@@ -3,6 +3,7 @@ import {
   TOOL_CREATE_CHAT,
   TOOL_GET_CHATS,
   TOOL_GET_CHAT_INFO,
+  TOOL_REMOVE_CHAT_MEMBERS,
   TOOL_SEARCH_CHATS,
   TOOL_UPDATE_CHAT,
 } from '@/consts/index.js';
@@ -520,6 +521,70 @@ export function registerChatTools(params: ToolRegistryParams): void {
         } else {
           logger.error('Failed to add chat members:', error);
           errorMessage = `Error adding chat members: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text', text: errorMessage }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_REMOVE_CHAT_MEMBERS,
+    'Remove members from a chat',
+    {
+      chat_id: z.string().describe('ID of the chat to remove members from'),
+      id_list: z.array(z.string()).describe('List of member IDs to remove'),
+      member_type: z
+        .string()
+        .optional()
+        .describe('Type of members being removed (user/bot)'),
+      user_id_type: z
+        .string()
+        .optional()
+        .describe('User ID type for the members'),
+    },
+    async (args) => {
+      const { chat_id, id_list, member_type, user_id_type } = args;
+      try {
+        logger.info(`Removing members from chat: ${chat_id}`);
+        const result = await services.chats.removeChatMembers(
+          chat_id,
+          id_list,
+          {
+            memberType: member_type,
+            userIdType: user_id_type,
+          },
+        );
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Members removed successfully from chat: ${chat_id}`,
+            },
+            {
+              type: 'json',
+              json: {
+                invalid_id_list: result.invalidIdList || [],
+              },
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error removing chat members: ${error.message}`;
+        } else {
+          logger.error('Failed to remove chat members:', error);
+          errorMessage = `Error removing chat members: ${error instanceof Error ? error.message : String(error)}`;
         }
 
         return {

@@ -150,3 +150,19 @@ export interface AddChatMembersParams {
 export interface AddChatMembersResponse {
   invalid_id_list?: string[];
 }
+
+/**
+ * Remove chat members parameters
+ */
+export interface RemoveChatMembersParams {
+  id_list: string[];
+  member_type?: string;
+  user_id_type?: string;
+}
+
+/**
+ * Remove chat members response
+ */
+export interface RemoveChatMembersResponse {
+  invalid_id_list?: string[];
+}

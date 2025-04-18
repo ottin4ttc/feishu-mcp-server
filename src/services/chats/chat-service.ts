@@ -14,6 +14,8 @@ import type {
   CreateChatParams,
   CreateChatResponse,
   GetChatInfoParams,
+  RemoveChatMembersParams,
+  RemoveChatMembersResponse,
   UpdateChatParams,
   UpdateChatResponse,
 } from '@/client/chats/types/index.js';
@@ -479,6 +481,63 @@ export class ChatService {
 
       throw new FeiShuApiError(
         `Error adding chat members: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Remove members from a chat
+   *
+   * @param chatId - ID of the chat to remove members from
+   * @param idList - List of member IDs to remove
+   * @param options - Additional options for removing members
+   * @returns Response with invalid ID list if any
+   * @throws FeiShuApiError if API request fails
+   */
+  async removeChatMembers(
+    chatId: string,
+    idList: string[],
+    options: {
+      memberType?: string;
+      userIdType?: string;
+    } = {},
+  ): Promise<{ invalidIdList?: string[] }> {
+    try {
+      const params: RemoveChatMembersParams = {
+        id_list: idList,
+      };
+
+      if (options.memberType !== undefined) {
+        params.member_type = options.memberType;
+      }
+
+      if (options.userIdType !== undefined) {
+        params.user_id_type = options.userIdType;
+      }
+
+      const response = await this.client.removeChatMembers(chatId, params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to remove chat members: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data) {
+        throw new FeiShuApiError('Empty response when removing chat members');
+      }
+
+      return {
+        invalidIdList: response.data.invalid_id_list,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error removing chat members: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }

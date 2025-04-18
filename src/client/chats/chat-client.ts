@@ -19,6 +19,8 @@ import type {
   CreateChatParams,
   CreateChatResponse,
   GetChatInfoParams,
+  RemoveChatMembersParams,
+  RemoveChatMembersResponse,
   UpdateChatParams,
   UpdateChatResponse,
 } from './types/index.js';
@@ -129,6 +131,23 @@ export class ChatClient extends ApiClient {
     params: AddChatMembersParams,
   ): Promise<ApiResponse<AddChatMembersResponse>> => {
     return this.post<AddChatMembersResponse>(
+      `/open-apis/im/v1/chats/${chatId}/members`,
+      params,
+    );
+  };
+
+  /**
+   * Remove members from a chat
+   *
+   * @param chatId - ID of the chat to remove members from
+   * @param params - Parameters for removing members
+   * @returns Response with invalid ID list if any
+   */
+  removeChatMembers = (
+    chatId: string,
+    params: RemoveChatMembersParams,
+  ): Promise<ApiResponse<RemoveChatMembersResponse>> => {
+    return this.delete<RemoveChatMembersResponse>(
       `/open-apis/im/v1/chats/${chatId}/members`,
       params,
     );
