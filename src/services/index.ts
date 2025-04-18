@@ -4,10 +4,12 @@
  * Exports service implementations for FeiShu API operations.
  */
 import type { ApiClientConfig } from '@/client/types.js';
+import { UserClient } from '../client/users/user-client.js';
 import { BotService } from './bots/bot-service.js';
 import { ChatService } from './chats/chat-service.js';
 import { DocumentService } from './documents/document-service.js';
 import { SheetService } from './sheets/sheet-service.js';
+import { UserService } from './users/user-service.js';
 
 // Re-export all errors
 export * from './error.js';
@@ -34,6 +36,7 @@ export class FeiShuServices {
   readonly bots: BotService;
   readonly chats: ChatService;
   readonly sheets: SheetService;
+  readonly users: UserService;
 
   /**
    * Initialize all FeiShu services
@@ -45,6 +48,7 @@ export class FeiShuServices {
     this.bots = new BotService(config);
     this.chats = new ChatService(config);
     this.sheets = new SheetService(config);
+    this.users = new UserService(new UserClient(config));
   }
 }
 

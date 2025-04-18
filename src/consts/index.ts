@@ -42,3 +42,7 @@ export const TOOL_GET_SHEET_RECORD = 'get_feishu_sheet_record';
 export const TOOL_CREATE_SHEET_RECORD = 'create_feishu_sheet_record';
 export const TOOL_UPDATE_SHEET_RECORD = 'update_feishu_sheet_record';
 export const TOOL_DELETE_SHEET_RECORD = 'delete_feishu_sheet_record';
+
+// Tool names for user operations
+export const TOOL_GET_USER_INFO = 'get_feishu_user_info';
+export const TOOL_GET_USER_LIST = 'get_feishu_user_list';
