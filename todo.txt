@@ -91,12 +91,12 @@
   - Add test cases
 
 ### User APIs
-- [ ] Implement: Get user info (GET /open-apis/contact/v3/users/:user_id)
+- [x] Implement: Get user info (GET /open-apis/contact/v3/users/:user_id)
   - Parameters: user_id, user_id_type
   - Response: user details
   - Add test cases
 
-- [ ] Implement: Get user list (GET /open-apis/contact/v3/users)
+- [x] Implement: Get user list (GET /open-apis/contact/v3/users)
   - Parameters: department_id, page_size, page_token
   - Response: items (list of users), page_token
   - Add test cases
