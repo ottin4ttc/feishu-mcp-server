@@ -11,10 +11,14 @@ import type {
  */
 import type {
   ChatData,
+  ChatInfoResponse,
   ChatListParams,
   ChatSearchParams,
   CreateChatParams,
   CreateChatResponse,
+  GetChatInfoParams,
+  UpdateChatParams,
+  UpdateChatResponse,
 } from './types/index.js';
 
 /**
@@ -89,6 +93,23 @@ export class ChatClient extends ApiClient {
     params?: GetChatInfoParams,
   ): Promise<ApiResponse<ChatInfoResponse>> => {
     return this.get<ChatInfoResponse>(
+      `/open-apis/im/v1/chats/${chatId}`,
+      params as Record<string, unknown>,
+    );
+  };
+
+  /**
+   * Update chat information
+   *
+   * @param chatId - ID of the chat to update
+   * @param params - Chat update parameters
+   * @returns Updated chat information
+   */
+  updateChat = (
+    chatId: string,
+    params: UpdateChatParams,
+  ): Promise<ApiResponse<UpdateChatResponse>> => {
+    return this.put<UpdateChatResponse>(
       `/open-apis/im/v1/chats/${chatId}`,
       params,
     );

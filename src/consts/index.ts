@@ -21,6 +21,7 @@ export const TOOL_SEARCH_CHATS = 'search_feishu_chats';
 export const TOOL_GET_CHATS = 'get_feishu_chats';
 export const TOOL_CREATE_CHAT = 'create_feishu_chat';
 export const TOOL_GET_CHAT_INFO = 'get_feishu_chat_info';
+export const TOOL_UPDATE_CHAT = 'update_feishu_chat';
 
 // Tool names for document operations
 export const TOOL_GET_DOCUMENT = 'get_feishu_document';

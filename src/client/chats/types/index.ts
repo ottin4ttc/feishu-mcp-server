@@ -110,3 +110,27 @@ export interface ChatInfoResponse {
   bot_manager_ids?: string[];
   i18n_names?: Record<string, string>;
 }
+
+/**
+ * Update chat info parameters
+ */
+export interface UpdateChatParams {
+  name?: string;
+  description?: string;
+  i18n_names?: Record<string, string>;
+  only_owner_add?: boolean;
+  share_allowed?: boolean;
+  only_owner_at_all?: boolean;
+  only_owner_edit?: boolean;
+  join_message_visibility?: string;
+  leave_message_visibility?: string;
+  membership_approval?: string;
+  user_id_type?: string;
+}
+
+/**
+ * Update chat info response
+ */
+export interface UpdateChatResponse {
+  chat_id: string;
+}

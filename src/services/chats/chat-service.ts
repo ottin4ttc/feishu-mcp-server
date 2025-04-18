@@ -12,6 +12,8 @@ import type {
   CreateChatParams,
   CreateChatResponse,
   GetChatInfoParams,
+  UpdateChatParams,
+  UpdateChatResponse,
 } from '@/client/chats/types/index.js';
 import type { ApiClientConfig } from '@/client/types.js';
 import { FeiShuApiError } from '../error.js';
@@ -258,7 +260,6 @@ export class ChatService {
     ownerIdType: string;
     isExternal: boolean;
     tenantKey: string;
-    status?: string;
     addMemberPermission?: string;
     shareCardPermission?: string;
     atAllPermission?: string;
@@ -301,7 +302,6 @@ export class ChatService {
         ownerIdType: response.data.owner_id_type,
         isExternal: response.data.external,
         tenantKey: response.data.tenant_key,
-        status: response.data.chat_status,
         addMemberPermission: response.data.add_member_permission,
         shareCardPermission: response.data.share_card_permission,
         atAllPermission: response.data.at_all_permission,
@@ -322,6 +322,104 @@ export class ChatService {
 
       throw new FeiShuApiError(
         `Error getting chat info: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Update chat information
+   *
+   * @param chatId - ID of the chat to update
+   * @param options - Chat update options
+   * @returns Updated chat ID
+   * @throws FeiShuApiError if API request fails
+   */
+  async updateChat(
+    chatId: string,
+    options: {
+      name?: string;
+      description?: string;
+      i18nNames?: Record<string, string>;
+      onlyOwnerAdd?: boolean;
+      shareAllowed?: boolean;
+      onlyOwnerAtAll?: boolean;
+      onlyOwnerEdit?: boolean;
+      joinMessageVisibility?: string;
+      leaveMessageVisibility?: string;
+      membershipApproval?: string;
+      userIdType?: string;
+    },
+  ): Promise<{ chatId: string }> {
+    try {
+      const params: UpdateChatParams = {};
+
+      if (options.name !== undefined) {
+        params.name = options.name;
+      }
+
+      if (options.description !== undefined) {
+        params.description = options.description;
+      }
+
+      if (options.i18nNames !== undefined) {
+        params.i18n_names = options.i18nNames;
+      }
+
+      if (options.onlyOwnerAdd !== undefined) {
+        params.only_owner_add = options.onlyOwnerAdd;
+      }
+
+      if (options.shareAllowed !== undefined) {
+        params.share_allowed = options.shareAllowed;
+      }
+
+      if (options.onlyOwnerAtAll !== undefined) {
+        params.only_owner_at_all = options.onlyOwnerAtAll;
+      }
+
+      if (options.onlyOwnerEdit !== undefined) {
+        params.only_owner_edit = options.onlyOwnerEdit;
+      }
+
+      if (options.joinMessageVisibility !== undefined) {
+        params.join_message_visibility = options.joinMessageVisibility;
+      }
+
+      if (options.leaveMessageVisibility !== undefined) {
+        params.leave_message_visibility = options.leaveMessageVisibility;
+      }
+
+      if (options.membershipApproval !== undefined) {
+        params.membership_approval = options.membershipApproval;
+      }
+
+      if (options.userIdType !== undefined) {
+        params.user_id_type = options.userIdType;
+      }
+
+      const response = await this.client.updateChat(chatId, params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to update chat: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data) {
+        throw new FeiShuApiError('Empty response when updating chat');
+      }
+
+      return {
+        chatId: response.data.chat_id,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error updating chat: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
