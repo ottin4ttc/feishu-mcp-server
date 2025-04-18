@@ -8,6 +8,7 @@ import type { Logger } from '@/typings/index.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerBotTools } from './bot-tools.js';
 import { registerChatTools } from './chat-tools.js';
+import { registerDepartmentTools } from './department-tools.js';
 import { registerDocumentTools } from './document-tools.js';
 import { registerSheetTools } from './sheet-tools.js';
 import { registerUserTools } from './user-tools.js';
@@ -41,4 +42,7 @@ export function registerAllTools(params: ToolRegistryParams): void {
 
   // Register user-related tools
   registerUserTools(params);
+
+  // Register department-related tools
+  registerDepartmentTools(params);
 }
