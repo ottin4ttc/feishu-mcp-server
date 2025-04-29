@@ -148,4 +148,25 @@ describe('BotClient', () => {
       );
     });
   });
+
+  describe('sendMessage with custom receive_id_type', () => {
+    it('should send a message with custom receive_id_type', async () => {
+      const userId = 'test_user_id';
+      const text = 'Hello, user!';
+      const msgType = MessageType.TEXT;
+      const receiveIdType = 'open_id';
+
+      await botClient.sendMessage(userId, text, msgType, receiveIdType);
+
+      expect(mockApiClient.post).toHaveBeenCalledWith(
+        '/open-apis/im/v1/messages',
+        {
+          receive_id: userId,
+          content: JSON.stringify({ text }),
+          msg_type: msgType,
+        },
+        { receive_id_type: receiveIdType },
+      );
+    });
+  });
 });

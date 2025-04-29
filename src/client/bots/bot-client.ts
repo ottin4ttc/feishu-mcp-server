@@ -29,12 +29,14 @@ export class BotClient extends ApiClient {
    * @param chatId - Chat ID
    * @param content - Message content
    * @param msgType - Message type
+   * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message response with ID
    */
   sendMessage = (
     chatId: string,
     content: string | Record<string, unknown>,
     msgType: MessageType,
+    receiveIdType = 'chat_id',
   ): Promise<ApiResponse<MessageResponse>> => {
     let formattedContent: Record<string, unknown>;
 
@@ -56,7 +58,7 @@ export class BotClient extends ApiClient {
         content: JSON.stringify(formattedContent),
         msg_type: msgType,
       },
-      { receive_id_type: 'chat_id' },
+      { receive_id_type: receiveIdType },
     );
   };
 

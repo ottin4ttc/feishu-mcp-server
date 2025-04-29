@@ -33,11 +33,20 @@ export function registerBotTools(params: ToolRegistryParams): void {
     {
       chatId: z.string().describe('The chat ID to send the message to'),
       text: z.string().describe('The text content of the message'),
+      receiveIdType: z
+        .enum(['open_id', 'union_id', 'user_id', 'email', 'chat_id'])
+        .optional()
+        .default('chat_id')
+        .describe('Type of the receive ID, defaults to chat_id'),
     },
-    async ({ chatId, text }) => {
+    async ({ chatId, text, receiveIdType }) => {
       try {
         logger.info(`Sending message to chat ${chatId}`);
-        const messageId = await services.bots.sendTextMessage(chatId, text);
+        const messageId = await services.bots.sendTextMessage(
+          chatId,
+          text,
+          receiveIdType,
+        );
 
         return {
           content: [
@@ -69,8 +78,13 @@ export function registerBotTools(params: ToolRegistryParams): void {
     {
       chatId: z.string().describe('The chat ID to send the card to'),
       cardContent: z.string().describe('The card content as JSON string'),
+      receiveIdType: z
+        .enum(['open_id', 'union_id', 'user_id', 'email', 'chat_id'])
+        .optional()
+        .default('chat_id')
+        .describe('Type of the receive ID, defaults to chat_id'),
     },
-    async ({ chatId, cardContent }) => {
+    async ({ chatId, cardContent, receiveIdType }) => {
       try {
         let cardJson: Record<string, unknown>;
 
@@ -89,7 +103,11 @@ export function registerBotTools(params: ToolRegistryParams): void {
         }
 
         logger.info(`Sending card to chat ${chatId}`);
-        const messageId = await services.bots.sendCardMessage(chatId, cardJson);
+        const messageId = await services.bots.sendCardMessage(
+          chatId,
+          cardJson,
+          receiveIdType,
+        );
 
         return {
           content: [

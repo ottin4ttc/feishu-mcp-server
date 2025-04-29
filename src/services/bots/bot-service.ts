@@ -28,17 +28,20 @@ export class BotService {
    *
    * @param chatId - Chat ID
    * @param text - Message text
+   * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message ID
    */
   async sendTextMessage(
     chatId: string,
     text: string,
+    receiveIdType = 'chat_id',
   ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
         chatId,
         text,
         MessageType.TEXT,
+        receiveIdType,
       );
 
       if (response.code !== 0) {
@@ -71,17 +74,20 @@ export class BotService {
    *
    * @param chatId - Chat ID
    * @param cardContent - Interactive card JSON content
+   * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message ID
    */
   async sendCardMessage(
     chatId: string,
     cardContent: BotCardContentBO,
+    receiveIdType = 'chat_id',
   ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
         chatId,
         cardContent,
         MessageType.INTERACTIVE,
+        receiveIdType,
       );
 
       if (response.code !== 0) {
