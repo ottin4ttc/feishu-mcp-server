@@ -4,7 +4,11 @@
 
 import { ApiClient } from '../api-client.js';
 import type { ApiResponse, PaginationOptions } from '../types.js';
-import type { UserInfoResponse, UserListResponse } from './types/index.js';
+import type {
+  UserInfoResponse,
+  UserListResponse,
+  UserSearchResponse,
+} from './types/index.js';
 
 /**
  * Client for FeiShu user operations
@@ -39,6 +43,23 @@ export class UserClient extends ApiClient {
   ): Promise<ApiResponse<UserListResponse>> => {
     return this.get<UserListResponse>('/open-apis/contact/v3/users', {
       department_id: departmentId,
+      ...options,
+    });
+  };
+
+  /**
+   * Search users by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Pagination options
+   * @returns User search results
+   */
+  searchUsers = (
+    query: string,
+    options?: PaginationOptions,
+  ): Promise<ApiResponse<UserSearchResponse>> => {
+    return this.get<UserSearchResponse>('/open-apis/search/v1/user', {
+      query,
       ...options,
     });
   };

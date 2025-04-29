@@ -3,7 +3,11 @@
  */
 
 import { z } from 'zod';
-import { TOOL_GET_USER_INFO, TOOL_GET_USER_LIST } from '../../consts/index.js';
+import {
+  TOOL_GET_USER_INFO,
+  TOOL_GET_USER_LIST,
+  TOOL_SEARCH_USERS,
+} from '../../consts/index.js';
 import { FeiShuApiError } from '../../services/error.js';
 import type { ToolRegistryParams } from './index.js';
 
@@ -87,6 +91,51 @@ export function registerUserTools({
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error getting user list: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_SEARCH_USERS,
+    'Search FeiShu users by keyword',
+    {
+      query: z.string().describe('Search keyword to find users'),
+      pageSize: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Number of users to return per page (1-100)'),
+      pageToken: z.string().optional().describe('Page token for pagination'),
+    },
+    async ({ query, pageSize, pageToken }) => {
+      try {
+        logger.info(`Searching users with query: ${query}`);
+        const searchResults = await services.users.searchUsers(query, {
+          pageSize,
+          pageToken,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(searchResults, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error searching users: ${error}`;
 
         logger.error(errorMessage);
 

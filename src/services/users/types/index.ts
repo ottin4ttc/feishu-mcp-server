@@ -49,3 +49,24 @@ export interface UserListBO {
   pageToken: string;
   hasMore: boolean;
 }
+
+/**
+ * User search result structure (standardized format)
+ */
+export interface UserSearchBO {
+  users: {
+    userId: string;
+    openId: string;
+    name: string;
+    enName: string;
+    email: string;
+    avatarUrl: string;
+    departmentIds: string[];
+    status: {
+      isActivated: boolean;
+      isDeactivated: boolean;
+    };
+  }[];
+  pageToken: string;
+  hasMore: boolean;
+}
