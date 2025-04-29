@@ -85,3 +85,36 @@ export interface UserListResponse {
     email_visible: boolean;
   }[];
 }
+
+/**
+ * User search parameters
+ */
+export interface UserSearchParams {
+  query: string;
+  page_size?: number;
+  page_token?: string;
+}
+
+/**
+ * User search response
+ */
+export interface UserSearchResponse {
+  has_more: boolean;
+  page_token: string;
+  items: {
+    user_id: string;
+    open_id: string;
+    name: string;
+    en_name: string;
+    email: string;
+    mobile: string;
+    avatar: {
+      avatar_url: string;
+    };
+    department_ids: string[];
+    status: {
+      is_activated: boolean;
+      is_deactivated: boolean;
+    };
+  }[];
+}

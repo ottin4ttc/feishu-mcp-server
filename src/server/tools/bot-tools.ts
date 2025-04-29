@@ -5,6 +5,7 @@ import {
   TOOL_GET_MESSAGE_READ_USERS,
   TOOL_REPLY_CARD,
   TOOL_REPLY_TEXT_MESSAGE,
+  TOOL_SEARCH_MESSAGES,
   TOOL_SEND_CARD,
   TOOL_SEND_TEXT_MESSAGE,
 } from '@/consts/index.js';
@@ -388,6 +389,61 @@ export function registerBotTools(params: ToolRegistryParams): void {
           error instanceof FeiShuApiError
             ? `FeiShu API Error: ${error.message}`
             : `Error getting message read users: ${error}`;
+
+        logger.error(errorMessage);
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_SEARCH_MESSAGES,
+    'Search FeiShu messages by keyword',
+    {
+      query: z.string().describe('Search keywords to find messages'),
+      messageType: z
+        .string()
+        .optional()
+        .describe('Type of messages to search for'),
+      pageSize: z
+        .number()
+        .optional()
+        .describe('Number of items per page, default is 20'),
+      pageToken: z.string().optional().describe('Page token for pagination'),
+    },
+    async ({ query, messageType, pageSize, pageToken }) => {
+      try {
+        logger.info(`Searching messages with query: ${query}`);
+        const searchResults = await services.bots.searchMessages(query, {
+          messageType,
+          pageSize,
+          pageToken,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Found ${searchResults.messages.length} messages matching "${query}".`,
+            },
+            {
+              type: 'json' as const,
+              json: {
+                messages: searchResults.messages,
+                pageToken: searchResults.pageToken,
+                hasMore: searchResults.hasMore,
+              },
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof FeiShuApiError
+            ? `FeiShu API Error: ${error.message}`
+            : `Error searching messages: ${error}`;
 
         logger.error(errorMessage);
 

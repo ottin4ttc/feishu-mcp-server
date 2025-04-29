@@ -15,6 +15,7 @@ export const TOOL_EDIT_TEXT_MESSAGE = 'edit_feishu_text_message';
 export const TOOL_EDIT_CARD = 'edit_feishu_card';
 export const TOOL_FORWARD_MESSAGE = 'forward_feishu_message';
 export const TOOL_GET_MESSAGE_READ_USERS = 'get_feishu_message_read_users';
+export const TOOL_SEARCH_MESSAGES = 'search_feishu_messages';
 
 // Tool names for chat operations
 export const TOOL_SEARCH_CHATS = 'search_feishu_chats';
@@ -31,6 +32,7 @@ export const TOOL_GET_DOCUMENT_RAW = 'get_feishu_document_raw';
 export const TOOL_UPDATE_DOCUMENT = 'update_feishu_document';
 export const TOOL_DELETE_DOCUMENT = 'delete_feishu_document';
 export const TOOL_GET_DOCUMENT_BLOCKS = 'get_feishu_document_blocks';
+export const TOOL_SEARCH_DOCUMENTS = 'search_feishu_documents';
 
 // Tool names for sheet operations
 export const TOOL_GET_SHEET_META = 'get_feishu_sheet_meta';
@@ -46,6 +48,7 @@ export const TOOL_DELETE_SHEET_RECORD = 'delete_feishu_sheet_record';
 // Tool names for user operations
 export const TOOL_GET_USER_INFO = 'get_feishu_user_info';
 export const TOOL_GET_USER_LIST = 'get_feishu_user_list';
+export const TOOL_SEARCH_USERS = 'search_feishu_users';
 
 // Tool names for department operations
 export const TOOL_GET_DEPARTMENT_INFO = 'get_feishu_department_info';

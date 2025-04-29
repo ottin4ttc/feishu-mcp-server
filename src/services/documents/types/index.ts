@@ -78,3 +78,25 @@ export interface DocumentBlocksBO {
   pageToken?: string;
   hasMore: boolean;
 }
+
+/**
+ * Document search item in business object format
+ */
+export interface DocumentSearchItemBO {
+  documentId: string;
+  title: string;
+  url: string;
+  createTime: number;
+  updateTime: number;
+  owner: string;
+  type: string;
+}
+
+/**
+ * Document search response in business object format
+ */
+export interface DocumentSearchBO {
+  documents: DocumentSearchItemBO[];
+  pageToken?: string;
+  hasMore: boolean;
+}

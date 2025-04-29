@@ -2,9 +2,10 @@
  * User Service
  */
 
+import type { PaginationOptions } from '../../client/types.js';
 import type { UserClient } from '../../client/users/user-client.js';
 import { FeiShuApiError } from '../error.js';
-import type { UserInfoBO, UserListBO } from './types/index.js';
+import type { UserInfoBO, UserListBO, UserSearchBO } from './types/index.js';
 
 /**
  * Service for FeiShu user operations
@@ -157,6 +158,55 @@ export class UserService {
         throw error;
       }
       throw new FeiShuApiError(`Failed to get user list: ${error}`, -1);
+    }
+  }
+
+  /**
+   * Search users by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Pagination options
+   * @returns User search results in business object format
+   */
+  async searchUsers(
+    query: string,
+    options?: PaginationOptions,
+  ): Promise<UserSearchBO> {
+    try {
+      const response = await this.client.searchUsers(query, options);
+
+      if (response.code !== 0 || !response.data) {
+        throw new FeiShuApiError(
+          `Failed to search users: ${response.msg || 'Unknown error'}`,
+          response.code || -1,
+        );
+      }
+
+      return {
+        users: response.data.items.map((item) => ({
+          userId: item.user_id || '',
+          openId: item.open_id || '',
+          name: item.name || '',
+          enName: item.en_name || '',
+          email: item.email || '',
+          avatarUrl: item.avatar?.avatar_url || '',
+          departmentIds: item.department_ids || [],
+          status: {
+            isActivated: item.status?.is_activated || false,
+            isDeactivated: item.status?.is_deactivated || false,
+          },
+        })),
+        pageToken: response.data.page_token || '',
+        hasMore: response.data.has_more || false,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+      throw new FeiShuApiError(
+        `Failed to search users: ${(error as Error).message}`,
+        -1,
+      );
     }
   }
 }

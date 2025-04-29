@@ -134,3 +134,25 @@ export interface GetDocumentBlocksResponse {
   page_token?: string;
   has_more?: boolean;
 }
+
+/**
+ * Document search result item
+ */
+export interface DocumentSearchItem {
+  document_id?: string;
+  title?: string;
+  url?: string;
+  create_time?: number;
+  update_time?: number;
+  owner?: string;
+  type?: string;
+}
+
+/**
+ * Document search response
+ */
+export interface DocumentSearchResponse {
+  items: DocumentSearchItem[];
+  page_token?: string;
+  has_more: boolean;
+}

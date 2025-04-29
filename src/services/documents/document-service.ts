@@ -12,6 +12,7 @@ import type {
   DocumentBlocksBO,
   DocumentContentBO,
   DocumentInfoBO,
+  DocumentSearchBO,
   UpdateDocumentParamsBO,
 } from './types/index.js';
 
@@ -290,6 +291,67 @@ export class DocumentService {
 
       throw new FeiShuApiError(
         `Error getting document blocks: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Search documents by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Search options including pagination and document type
+   * @returns Document search results in business object format
+   * @throws FeiShuApiError if API request fails
+   */
+  async searchDocuments(
+    query: string,
+    options?: {
+      type?: 'doc' | 'docx' | 'sheet';
+      pageSize?: number;
+      pageToken?: string;
+    },
+  ): Promise<DocumentSearchBO> {
+    try {
+      const response = await this.client.searchDocuments(query, {
+        type: options?.type,
+        pageSize: options?.pageSize,
+        pageToken: options?.pageToken,
+      });
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to search documents: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.items) {
+        return {
+          documents: [],
+          hasMore: false,
+        };
+      }
+
+      return {
+        documents: response.data.items.map((item) => ({
+          documentId: item.document_id || '',
+          title: item.title || '',
+          url: item.url || '',
+          createTime: item.create_time || 0,
+          updateTime: item.update_time || 0,
+          owner: item.owner || '',
+          type: item.type || '',
+        })),
+        pageToken: response.data.page_token,
+        hasMore: response.data.has_more,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error searching documents: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
