@@ -11,6 +11,8 @@ import type {
   MessageReadUsersParams,
   MessageReadUsersResponse,
   MessageResponse,
+  MessageSearchParams,
+  MessageSearchResponse,
   MessagesListParams,
   MessagesListResponse,
 } from './types/index.js';
@@ -189,6 +191,30 @@ export class BotClient extends ApiClient {
     return this.getList<MessageReadUsersResponse>(
       `/open-apis/im/v1/messages/${messageId}/read_users`,
       pagination,
+    );
+  };
+
+  /**
+   * Search messages by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Additional options including pagination
+   * @returns Message search results
+   */
+  searchMessages = (
+    query: string,
+    options?: Omit<MessageSearchParams, 'query'>,
+  ): Promise<ApiResponse<MessageSearchResponse>> => {
+    const { page_size, page_token, message_type } = options || {};
+    const params: Record<string, any> = { query };
+
+    if (page_size) params.page_size = page_size;
+    if (page_token) params.page_token = page_token;
+    if (message_type) params.message_type = message_type;
+
+    return this.get<MessageSearchResponse>(
+      '/open-apis/im/v1/messages/search',
+      params,
     );
   };
 }

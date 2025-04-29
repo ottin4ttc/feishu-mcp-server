@@ -121,3 +121,33 @@ export interface MessagesListResponse {
   page_token?: string;
   has_more: boolean;
 }
+
+/**
+ * Parameters for searching messages
+ */
+export interface MessageSearchParams {
+  query: string;
+  page_size?: number;
+  page_token?: string;
+  message_type?: string;
+}
+
+/**
+ * Response data for message search
+ */
+export interface MessageSearchResponse {
+  items: Array<{
+    message_id: string;
+    msg_type: string;
+    create_time: string;
+    chat_id: string;
+    content: string;
+    sender: {
+      id: string;
+      id_type: string;
+      sender_type: string;
+    };
+  }>;
+  page_token?: string;
+  has_more: boolean;
+}

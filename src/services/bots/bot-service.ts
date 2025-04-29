@@ -374,4 +374,87 @@ export class BotService {
       );
     }
   }
+
+  /**
+   * Search messages by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Additional options including pagination and message type
+   * @returns Message search results in business object format
+   */
+  async searchMessages(
+    query: string,
+    options?: {
+      pageSize?: number;
+      pageToken?: string;
+      messageType?: string;
+    },
+  ): Promise<{
+    messages: Array<{
+      messageId: string;
+      msgType: string;
+      createTime: string;
+      chatId: string;
+      content: string;
+      sender: {
+        id: string;
+        idType: string;
+        senderType: string;
+      };
+    }>;
+    pageToken?: string;
+    hasMore: boolean;
+  }> {
+    try {
+      const params: {
+        page_size?: number;
+        page_token?: string;
+        message_type?: string;
+      } = {};
+
+      if (options?.pageSize) params.page_size = options.pageSize;
+      if (options?.pageToken) params.page_token = options.pageToken;
+      if (options?.messageType) params.message_type = options.messageType;
+
+      const response = await this.client.searchMessages(query, params);
+
+      if (response.code !== 0) {
+        throw new FeiShuApiError(
+          `Failed to search messages: ${response.msg}`,
+          response.code,
+        );
+      }
+
+      if (!response.data?.items) {
+        throw new FeiShuApiError('No items returned');
+      }
+
+      return {
+        messages: response.data.items.map((item) => ({
+          messageId: item.message_id,
+          msgType: item.msg_type,
+          createTime: item.create_time,
+          chatId: item.chat_id,
+          content: item.content,
+          sender: {
+            id: item.sender.id,
+            idType: item.sender.id_type,
+            senderType: item.sender.sender_type,
+          },
+        })),
+        pageToken: response.data.page_token,
+        hasMore: response.data.has_more,
+      };
+    } catch (error) {
+      if (error instanceof FeiShuApiError) {
+        throw error;
+      }
+
+      throw new FeiShuApiError(
+        `Error searching messages: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
 }
