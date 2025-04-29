@@ -9,6 +9,7 @@ import type {
   DeleteDocumentResponse,
   DocumentContent,
   DocumentInfo,
+  DocumentSearchResponse,
   GetDocumentBlocksParams,
   GetDocumentBlocksResponse,
   UpdateDocumentParams,
@@ -103,4 +104,23 @@ export class DocumentClient extends ApiClient {
       `/open-apis/docx/v1/documents/${documentId}/blocks`,
       params as Record<string, unknown>,
     );
+
+  /**
+   * Search documents by keyword
+   *
+   * @param query - Search keywords
+   * @param options - Search options including pagination and document type
+   * @returns Document search results
+   */
+  searchDocuments = (
+    query: string,
+    options?: PaginationOptions & {
+      type?: 'doc' | 'docx' | 'sheet';
+    },
+  ): Promise<ApiResponse<DocumentSearchResponse>> => {
+    return this.get<DocumentSearchResponse>('/open-apis/search/v1/docs', {
+      query,
+      ...options,
+    });
+  };
 }

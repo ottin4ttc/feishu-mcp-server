@@ -3,6 +3,7 @@ import {
   TOOL_GET_DOCUMENT,
   TOOL_GET_DOCUMENT_BLOCKS,
   TOOL_GET_DOCUMENT_RAW,
+  TOOL_SEARCH_DOCUMENTS,
   TOOL_UPDATE_DOCUMENT,
 } from '@/consts/index.js';
 import { FeiShuApiError } from '@/services/error.js';
@@ -240,6 +241,65 @@ export function registerDocumentTools(params: ToolRegistryParams): void {
         } else {
           logger.error('Failed to get document blocks:', error);
           errorMessage = `Error getting document blocks: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          content: [{ type: 'text' as const, text: errorMessage }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.tool(
+    TOOL_SEARCH_DOCUMENTS,
+    'Search FeiShu documents by keyword',
+    {
+      query: z.string().describe('Search keywords to find documents'),
+      type: z
+        .enum(['doc', 'docx', 'sheet'])
+        .optional()
+        .describe('Type of documents to search for'),
+      pageSize: z
+        .number()
+        .optional()
+        .describe('Number of items per page, default is 20'),
+      pageToken: z.string().optional().describe('Page token for pagination'),
+    },
+    async (args, extra) => {
+      const { query, type, pageSize, pageToken } = args;
+      try {
+        logger.info(`Searching documents with query: ${query}`);
+        const searchResults = await services.documents.searchDocuments(query, {
+          type,
+          pageSize,
+          pageToken,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Found ${searchResults.documents.length} documents matching "${query}".`,
+            },
+            {
+              type: 'json' as const,
+              json: searchResults,
+            },
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        let errorMessage: string;
+
+        if (error instanceof FeiShuApiError) {
+          logger.error(
+            `FeiShu API Error (${error.code || 'unknown'}): ${error.message}`,
+          );
+          errorMessage = `Error searching documents: ${error.message}`;
+        } else {
+          logger.error('Failed to search documents:', error);
+          errorMessage = `Error searching documents: ${error instanceof Error ? error.message : String(error)}`;
         }
 
         return {

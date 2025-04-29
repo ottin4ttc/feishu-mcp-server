@@ -32,6 +32,7 @@ export const TOOL_GET_DOCUMENT_RAW = 'get_feishu_document_raw';
 export const TOOL_UPDATE_DOCUMENT = 'update_feishu_document';
 export const TOOL_DELETE_DOCUMENT = 'delete_feishu_document';
 export const TOOL_GET_DOCUMENT_BLOCKS = 'get_feishu_document_blocks';
+export const TOOL_SEARCH_DOCUMENTS = 'search_feishu_documents';
 
 // Tool names for sheet operations
 export const TOOL_GET_SHEET_META = 'get_feishu_sheet_meta';
