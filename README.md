@@ -19,10 +19,15 @@
   - [运行服务](#运行服务)
 - [配置说明](#配置说明)
 - [API文档](#api文档)
+  - [搜索操作](#搜索操作)
   - [文档操作](#文档操作)
   - [机器人操作](#机器人操作)
   - [聊天操作](#聊天操作)
   - [多维表格操作](#多维表格操作)
+  - [用户操作](#用户操作)
+  - [部门操作](#部门操作)
+  - [日历操作](#日历操作)
+  - [任务操作](#任务操作)
 - [开发指南](#开发指南)
   - [代码规范](#代码规范)
   - [错误处理](#错误处理)
@@ -194,6 +199,46 @@ node dist/index.js --stdio
 
 ## API文档
 
+### 搜索操作
+
+#### `search_feishu_users`
+
+搜索飞书用户。
+
+参数：
+- `query` - 搜索关键词
+- `pageSize` - 每页返回的用户数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 搜索结果用户列表（JSON格式）
+
+#### `search_feishu_messages`
+
+搜索飞书消息。
+
+参数：
+- `query` - 搜索关键词
+- `messageType` - 消息类型，可选，如'text'、'interactive'等
+- `pageSize` - 每页返回的消息数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 搜索结果消息列表（JSON格式）
+
+#### `search_feishu_docs`
+
+搜索飞书文档。
+
+参数：
+- `query` - 搜索关键词
+- `type` - 文档类型，可选，如'docx'、'sheet'等
+- `pageSize` - 每页返回的文档数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 搜索结果文档列表（JSON格式）
+
 ### 文档操作
 
 #### `get_feishu_doc_raw`
@@ -216,6 +261,54 @@ node dist/index.js --stdio
 返回：
 - 文档的元数据（JSON格式）
 
+#### `update_feishu_doc`
+
+更新飞书文档内容。
+
+参数：
+- `docId` - 文档ID
+- `content` - 新的文档内容
+- `revision` - 文档修订版本号，可选
+
+返回：
+- 更新状态和文档信息
+
+#### `delete_feishu_doc`
+
+删除飞书文档。
+
+参数：
+- `docId` - 文档ID
+
+返回：
+- 删除状态
+
+#### `get_feishu_doc_blocks`
+
+获取飞书文档的块内容。
+
+参数：
+- `docId` - 文档ID
+- `blockId` - 块ID，可选，不提供时获取所有块
+- `pageSize` - 每页返回的块数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 文档块列表（JSON格式）
+
+#### `search_feishu_docs`
+
+搜索飞书文档。
+
+参数：
+- `query` - 搜索关键词
+- `type` - 文档类型，可选，如'docx'、'sheet'等
+- `pageSize` - 每页返回的文档数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 搜索结果文档列表（JSON格式）
+
 ### 机器人操作
 
 #### `send_feishu_text_message`
@@ -223,8 +316,9 @@ node dist/index.js --stdio
 发送文本消息到飞书聊天。
 
 参数：
-- `chatId` - 聊天ID
+- `receiveId` - 接收者ID
 - `text` - 要发送的文本内容
+- `receiveIdType` - 接收者ID类型，可选值：'chat_id'(默认)、'open_id'、'user_id'、'union_id'、'email'
 
 返回：
 - 发送状态和消息ID
@@ -234,11 +328,60 @@ node dist/index.js --stdio
 发送交互卡片到飞书聊天。
 
 参数：
-- `chatId` - 聊天ID
+- `receiveId` - 接收者ID
 - `cardContent` - 卡片内容（JSON字符串）
+- `receiveIdType` - 接收者ID类型，可选值：'chat_id'(默认)、'open_id'、'user_id'、'union_id'、'email'
 
 返回：
 - 发送状态和消息ID
+
+#### `reply_feishu_message`
+
+回复飞书消息。
+
+参数：
+- `messageId` - 要回复的消息ID
+- `content` - 回复内容
+- `msgType` - 消息类型，可选值：'text'、'interactive'等
+
+返回：
+- 发送状态和消息ID
+
+#### `edit_feishu_message`
+
+编辑飞书消息。
+
+参数：
+- `messageId` - 要编辑的消息ID
+- `content` - 新的消息内容
+- `msgType` - 消息类型，可选值：'text'、'interactive'等
+
+返回：
+- 更新状态和消息ID
+
+#### `forward_feishu_message`
+
+转发飞书消息。
+
+参数：
+- `messageId` - 要转发的消息ID
+- `receiveId` - 接收者ID
+- `receiveIdType` - 接收者ID类型，可选值：'chat_id'(默认)、'open_id'、'user_id'、'union_id'、'email'
+
+返回：
+- 转发状态和新消息ID
+
+#### `get_feishu_message_read_users`
+
+获取已读消息的用户列表。
+
+参数：
+- `messageId` - 消息ID
+- `pageSize` - 每页返回的用户数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 已读用户列表（JSON格式）
 
 ### 聊天操作
 
@@ -251,6 +394,171 @@ node dist/index.js --stdio
 
 返回：
 - 聊天的基本信息（JSON格式）
+
+#### `create_feishu_chat`
+
+创建飞书群聊。
+
+参数：
+- `name` - 群名称
+- `description` - 群描述，可选
+- `userIds` - 用户ID列表，群成员
+
+返回：
+- 创建的群聊信息（JSON格式）
+
+#### `update_feishu_chat`
+
+更新飞书群聊信息。
+
+参数：
+- `chatId` - 聊天ID
+- `name` - 新的群名称，可选
+- `description` - 新的群描述，可选
+
+返回：
+- 更新状态
+
+#### `add_feishu_chat_members`
+
+添加成员到飞书群聊。
+
+参数：
+- `chatId` - 聊天ID
+- `userIds` - 要添加的用户ID列表
+
+返回：
+- 添加状态和结果信息
+
+#### `remove_feishu_chat_members`
+
+从飞书群聊中移除成员。
+
+参数：
+- `chatId` - 聊天ID
+- `userIds` - 要移除的用户ID列表
+
+返回：
+- 移除状态和结果信息
+
+### 用户操作
+
+#### `get_feishu_user_info`
+
+获取飞书用户信息。
+
+参数：
+- `userId` - 用户ID
+- `userIdType` - 用户ID类型，可选值：'open_id'(默认)、'union_id'、'user_id'、'email'
+
+返回：
+- 用户信息（JSON格式），包含用户ID、姓名、头像、部门等信息
+
+#### `list_feishu_users`
+
+获取飞书用户列表。
+
+参数：
+- `departmentId` - 部门ID，可选，指定获取某个部门的用户
+- `pageSize` - 每页返回的用户数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 用户列表（JSON格式），包含用户ID、姓名、头像、部门等信息
+
+#### `search_feishu_users`
+
+搜索飞书用户。
+
+参数：
+- `query` - 搜索关键词
+- `pageSize` - 每页返回的用户数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 搜索结果用户列表（JSON格式）
+
+### 部门操作
+
+#### `get_feishu_department_info`
+
+获取飞书部门信息。
+
+参数：
+- `departmentId` - 部门ID
+- `departmentIdType` - 部门ID类型，可选值：'open_department_id'(默认)、'department_id'
+
+返回：
+- 部门信息（JSON格式），包含部门ID、名称、父部门、成员数量等信息
+
+#### `list_feishu_departments`
+
+获取飞书部门列表。
+
+参数：
+- `parentDepartmentId` - 父部门ID，可选，指定获取某个部门的子部门
+- `fetchChild` - 是否获取子部门，可选，默认为false
+- `pageSize` - 每页返回的部门数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 部门列表（JSON格式），包含部门ID、名称、父部门、成员数量等信息
+
+### 日历操作
+
+#### `list_feishu_calendars`
+
+获取飞书日历列表。
+
+参数：
+- `pageSize` - 每页返回的日历数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 日历列表（JSON格式），包含日历ID、名称、类型、权限等信息
+
+#### `get_feishu_calendar_events`
+
+获取飞书日历事件。
+
+参数：
+- `calendarId` - 日历ID
+- `startTime` - 开始时间，ISO 8601格式
+- `endTime` - 结束时间，ISO 8601格式
+- `pageSize` - 每页返回的事件数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 日历事件列表（JSON格式），包含事件ID、标题、时间、地点、参与者等信息
+
+### 任务操作
+
+#### `list_feishu_tasks`
+
+获取飞书任务列表。
+
+参数：
+- `taskListId` - 任务列表ID，可选
+- `completedTaskHiddenMode` - 已完成任务的隐藏模式，可选值：'show_all'、'hide_all'
+- `pageSize` - 每页返回的任务数量，可选，默认为20
+- `pageToken` - 分页标记，可选，用于获取下一页数据
+
+返回：
+- 任务列表（JSON格式），包含任务ID、标题、描述、截止时间、完成状态等信息
+
+#### `create_feishu_task`
+
+创建飞书任务。
+
+参数：
+- `taskListId` - 任务列表ID
+- `summary` - 任务标题
+- `description` - 任务描述，可选
+- `due` - 截止时间，ISO 8601格式，可选
+- `origin` - 任务来源，可选
+
+返回：
+- 创建的任务信息（JSON格式），包含任务ID、标题、描述、截止时间等信息
 
 ### 多维表格操作
 
@@ -330,6 +638,43 @@ node dist/index.js --stdio
 
 返回：
 - 单条记录（JSON格式），包含记录ID和字段值
+
+#### `create_feishu_sheet_record`
+
+在飞书多维表格中创建新记录。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `fields` - 字段值，JSON对象，键为字段ID，值为字段值
+
+返回：
+- 创建的记录信息（JSON格式），包含记录ID
+
+#### `update_feishu_sheet_record`
+
+更新飞书多维表格中的记录。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `recordId` - 记录ID
+- `fields` - 字段值，JSON对象，键为字段ID，值为字段值
+
+返回：
+- 更新状态和记录信息
+
+#### `delete_feishu_sheet_record`
+
+删除飞书多维表格中的记录。
+
+参数：
+- `appToken` - 多维表格ID，通常在URL中找到 (例如：feishu.cn/base/<appToken> 或 feishu.cn/app/<appToken>)
+- `tableId` - 数据表ID
+- `recordId` - 记录ID
+
+返回：
+- 删除状态
 
 ## 开发指南
 
