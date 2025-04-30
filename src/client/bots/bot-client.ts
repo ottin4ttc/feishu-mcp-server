@@ -26,14 +26,14 @@ export class BotClient extends ApiClient {
   /**
    * Send message to a chat
    *
-   * @param chatId - Chat ID
+   * @param receiveId - Receive ID
    * @param content - Message content
    * @param msgType - Message type
    * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message response with ID
    */
   sendMessage = (
-    chatId: string,
+    receiveId: string,
     content: string | Record<string, unknown>,
     msgType: MessageType,
     receiveIdType = 'chat_id',
@@ -54,7 +54,7 @@ export class BotClient extends ApiClient {
     return this.post<MessageResponse>(
       '/open-apis/im/v1/messages',
       {
-        receive_id: chatId,
+        receive_id: receiveId,
         content: JSON.stringify(formattedContent),
         msg_type: msgType,
       },

@@ -31,7 +31,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
     TOOL_SEND_TEXT_MESSAGE,
     'Send a text message to a FeiShu chat via bot',
     {
-      chatId: z.string().describe('The chat ID to send the message to'),
+      receiveId: z.string().describe('The ID to send the message to'),
       text: z.string().describe('The text content of the message'),
       receiveIdType: z
         .enum(['open_id', 'union_id', 'user_id', 'email', 'chat_id'])
@@ -39,11 +39,11 @@ export function registerBotTools(params: ToolRegistryParams): void {
         .default('chat_id')
         .describe('Type of the receive ID, defaults to chat_id'),
     },
-    async ({ chatId, text, receiveIdType }) => {
+    async ({ receiveId, text, receiveIdType }) => {
       try {
-        logger.info(`Sending message to chat ${chatId}`);
+        logger.info(`Sending message to ${receiveId}`);
         const messageId = await services.bots.sendTextMessage(
-          chatId,
+          receiveId,
           text,
           receiveIdType,
         );
@@ -76,7 +76,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
     TOOL_SEND_CARD,
     'Send an interactive card to a FeiShu chat',
     {
-      chatId: z.string().describe('The chat ID to send the card to'),
+      receiveId: z.string().describe('The ID to send the card to'),
       cardContent: z.string().describe('The card content as JSON string'),
       receiveIdType: z
         .enum(['open_id', 'union_id', 'user_id', 'email', 'chat_id'])
@@ -84,7 +84,7 @@ export function registerBotTools(params: ToolRegistryParams): void {
         .default('chat_id')
         .describe('Type of the receive ID, defaults to chat_id'),
     },
-    async ({ chatId, cardContent, receiveIdType }) => {
+    async ({ receiveId, cardContent, receiveIdType }) => {
       try {
         let cardJson: Record<string, unknown>;
 
@@ -102,9 +102,9 @@ export function registerBotTools(params: ToolRegistryParams): void {
           };
         }
 
-        logger.info(`Sending card to chat ${chatId}`);
+        logger.info(`Sending card to ${receiveId}`);
         const messageId = await services.bots.sendCardMessage(
-          chatId,
+          receiveId,
           cardJson,
           receiveIdType,
         );

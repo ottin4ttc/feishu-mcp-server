@@ -26,19 +26,19 @@ export class BotService {
   /**
    * Send text message to a chat
    *
-   * @param chatId - Chat ID
+   * @param receiveId - Receive ID
    * @param text - Message text
    * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message ID
    */
   async sendTextMessage(
-    chatId: string,
+    receiveId: string,
     text: string,
     receiveIdType = 'chat_id',
   ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
-        chatId,
+        receiveId,
         text,
         MessageType.TEXT,
         receiveIdType,
@@ -72,19 +72,19 @@ export class BotService {
   /**
    * Send interactive card message
    *
-   * @param chatId - Chat ID
+   * @param receiveId - Receive ID
    * @param cardContent - Interactive card JSON content
    * @param receiveIdType - Type of the receive ID, defaults to 'chat_id'
    * @returns Message ID
    */
   async sendCardMessage(
-    chatId: string,
+    receiveId: string,
     cardContent: BotCardContentBO,
     receiveIdType = 'chat_id',
   ): Promise<BotMessageResponseBO> {
     try {
       const response = await this.client.sendMessage(
-        chatId,
+        receiveId,
         cardContent,
         MessageType.INTERACTIVE,
         receiveIdType,
