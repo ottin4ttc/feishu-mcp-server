@@ -1,5 +1,4 @@
-/** @type {import('jest').Config} */
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleNameMapper: {
@@ -10,5 +9,5 @@ module.exports = {
     '^.+\\.(js|jsx)$': 'babel-jest',
   },
   transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
-  testMatch: ['**/task-simple.test.js'],
+  testMatch: ['**/tests/**/*.test.js'],
 };

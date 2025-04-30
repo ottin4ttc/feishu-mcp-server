@@ -31,13 +31,13 @@ const MockApiClient = jest.fn().mockImplementation(() => {
   };
 });
 
-jest.mock('../src/client/api-client.js', () => {
+jest.mock('../src/client/api-client', () => {
   return {
     ApiClient: MockApiClient,
   };
 });
 
-import { BotClient } from '../src/client/bots/bot-client.js';
+import { BotClient } from '../src/client/bots/bot-client';
 
 const MessageType = {
   TEXT: 'text',
@@ -57,16 +57,16 @@ describe('BotClient', () => {
 
   describe('sendMessage', () => {
     it('should send a text message with correct parameters including receive_id_type', async () => {
-      const chatId = 'test_chat_id';
+      const receiveId = 'test_chat_id';
       const text = 'Hello, world!';
       const msgType = MessageType.TEXT;
 
-      await botClient.sendMessage(chatId, text, msgType);
+      await botClient.sendMessage(receiveId, text, msgType);
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
         '/open-apis/im/v1/messages',
         {
-          receive_id: chatId,
+          receive_id: receiveId,
           content: JSON.stringify({ text }),
           msg_type: msgType,
         },
@@ -75,7 +75,7 @@ describe('BotClient', () => {
     });
 
     it('should send an interactive card message with correct parameters including receive_id_type', async () => {
-      const chatId = 'test_chat_id';
+      const receiveId = 'test_chat_id';
       const cardContent = {
         elements: [
           {
@@ -89,12 +89,12 @@ describe('BotClient', () => {
       };
       const msgType = MessageType.INTERACTIVE;
 
-      await botClient.sendMessage(chatId, cardContent, msgType);
+      await botClient.sendMessage(receiveId, cardContent, msgType);
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
         '/open-apis/im/v1/messages',
         {
-          receive_id: chatId,
+          receive_id: receiveId,
           content: JSON.stringify({ card: cardContent }),
           msg_type: msgType,
         },
@@ -103,7 +103,7 @@ describe('BotClient', () => {
     });
 
     it('should handle string card content correctly with receive_id_type parameter', async () => {
-      const chatId = 'test_chat_id';
+      const receiveId = 'test_chat_id';
       const cardContent = JSON.stringify({
         elements: [
           {
@@ -117,12 +117,12 @@ describe('BotClient', () => {
       });
       const msgType = MessageType.INTERACTIVE;
 
-      await botClient.sendMessage(chatId, cardContent, msgType);
+      await botClient.sendMessage(receiveId, cardContent, msgType);
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
         '/open-apis/im/v1/messages',
         {
-          receive_id: chatId,
+          receive_id: receiveId,
           content: JSON.stringify({ card: JSON.parse(cardContent) }),
           msg_type: msgType,
         },
@@ -145,6 +145,27 @@ describe('BotClient', () => {
         '/open-apis/im/v1/messages',
         { pageSize: 20, pageToken: 'test_page_token' },
         { chat_id: 'test_chat_id' },
+      );
+    });
+  });
+
+  describe('sendMessage with custom receive_id_type', () => {
+    it('should send a message with custom receive_id_type', async () => {
+      const userId = 'test_user_id';
+      const text = 'Hello, user!';
+      const msgType = MessageType.TEXT;
+      const receiveIdType = 'open_id';
+
+      await botClient.sendMessage(userId, text, msgType, receiveIdType);
+
+      expect(mockApiClient.post).toHaveBeenCalledWith(
+        '/open-apis/im/v1/messages',
+        {
+          receive_id: userId,
+          content: JSON.stringify({ text }),
+          msg_type: msgType,
+        },
+        { receive_id_type: receiveIdType },
       );
     });
   });
