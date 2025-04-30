@@ -4,6 +4,7 @@
 
 import { ApiClient } from '../api-client.js';
 import type { ApiResponse, PaginationOptions } from '../types.js';
+import { TokenType } from '../types.js';
 import type {
   UserInfoResponse,
   UserListResponse,
@@ -53,14 +54,19 @@ export class UserClient extends ApiClient {
    * @param query - Search keywords
    * @param options - Pagination options
    * @returns User search results
+   * @requires User access token
    */
   searchUsers = (
     query: string,
     options?: PaginationOptions,
   ): Promise<ApiResponse<UserSearchResponse>> => {
-    return this.get<UserSearchResponse>('/open-apis/search/v1/user', {
-      query,
-      ...options,
-    });
+    return this.get<UserSearchResponse>(
+      '/open-apis/search/v1/user',
+      {
+        query,
+        ...options,
+      },
+      { tokenType: TokenType.USER },
+    );
   };
 }

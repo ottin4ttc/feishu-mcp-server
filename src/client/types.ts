@@ -6,6 +6,7 @@ export interface RequestOptions {
   data?: Record<string, string | number | boolean | null>;
   headers?: Record<string, string>;
   path?: Record<string, string>;
+  tokenType?: TokenType;
 }
 
 export interface Payload {
@@ -39,13 +40,31 @@ export interface TokenManagerParams {
   cache: Cache;
   logger: Logger;
   httpInstance: AxiosInstance;
+  authorizationCode?: string;
+  redirectUri?: string;
 }
 
 export interface TokenResponse {
-  tenant_access_token: string;
+  tenant_access_token?: string;
+  user_access_token?: string;
+  refresh_token?: string;
   expire: number;
   code?: number;
   msg?: string;
+}
+
+export interface UserTokenResponse {
+  user_access_token: string;
+  refresh_token: string;
+  expire: number;
+  token_type: string;
+  code?: number;
+  msg?: string;
+}
+
+export enum TokenType {
+  TENANT = 'tenant_access_token',
+  USER = 'user_access_token',
 }
 
 export interface ApiClientConfig {

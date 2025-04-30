@@ -5,6 +5,7 @@
  */
 import { ApiClient } from '@/client/api-client.js';
 import type { ApiResponse, PaginationOptions } from '@/client/types.js';
+import { TokenType } from '@/client/types.js';
 import { MessageType } from './types/index.js';
 import type {
   EditMessageParams,
@@ -202,6 +203,7 @@ export class BotClient extends ApiClient {
    * @param query - Search keywords
    * @param options - Additional options including pagination
    * @returns Message search results
+   * @requires User access token
    */
   searchMessages = (
     query: string,
@@ -217,6 +219,7 @@ export class BotClient extends ApiClient {
     return this.get<MessageSearchResponse>(
       '/open-apis/im/v1/messages/search',
       params,
+      { tokenType: TokenType.USER },
     );
   };
 }

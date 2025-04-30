@@ -24,7 +24,7 @@ import type {
   Payload,
   RequestOptions,
 } from './types.js';
-import { ApiError } from './types.js';
+import { ApiError, TokenType } from './types.js';
 
 /**
  * Unified FeiShu API Client
@@ -227,16 +227,31 @@ export class ApiClient {
       data: options?.data || {},
       headers: options?.headers || {},
       path: options?.path || {},
+      tokenType: options?.tokenType || TokenType.TENANT,
     };
 
-    // Get token and add authorization header
-    const tenantAccessToken = await this.tokenManager.getTenantAccessToken();
+    // Get token based on token type
+    let token: string;
+    try {
+      if (targetOptions.tokenType === TokenType.USER) {
+        token = await this.tokenManager.getUserAccessToken();
+        this.logger.debug('Using user access token for request');
+      } else {
+        token = await this.tokenManager.getTenantAccessToken();
+        this.logger.debug('Using tenant access token for request');
+      }
 
-    if (tenantAccessToken) {
-      newConfig.headers = newConfig.headers || {};
-      newConfig.headers.Authorization = `Bearer ${tenantAccessToken}`;
-    } else {
-      this.logger.warn('Failed to get token');
+      if (token) {
+        newConfig.headers = newConfig.headers || {};
+        newConfig.headers.Authorization = `Bearer ${token}`;
+      } else {
+        this.logger.warn(`Failed to get ${targetOptions.tokenType}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to get token (${targetOptions.tokenType}): ${(error as Error).message}`,
+      );
+      throw new Error(`Authentication failed: ${(error as Error).message}`);
     }
 
     // Merge request options

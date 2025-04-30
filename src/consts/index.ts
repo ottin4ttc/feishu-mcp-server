@@ -5,6 +5,7 @@
 // API endpoint and token
 export const API_ENDPOINT = 'https://open.feishu.cn';
 export const TENANT_ACCESS_TOKEN = 'tenant-access-token';
+export const USER_ACCESS_TOKEN = 'user-access-token';
 
 // Tool names for bot operations
 export const TOOL_SEND_TEXT_MESSAGE = 'send_feishu_text_message';
