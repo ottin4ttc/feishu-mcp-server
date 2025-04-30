@@ -1,5 +1,6 @@
 import { ApiClient } from '@/client/api-client.js';
 import type { ApiResponse, PaginationOptions } from '@/client/types.js';
+import { TokenType } from '@/client/types.js';
 /**
  * Document Client for FeiShu
  *
@@ -111,6 +112,7 @@ export class DocumentClient extends ApiClient {
    * @param query - Search keywords
    * @param options - Search options including pagination and document type
    * @returns Document search results
+   * @requires User access token
    */
   searchDocuments = (
     query: string,
@@ -118,9 +120,13 @@ export class DocumentClient extends ApiClient {
       type?: 'doc' | 'docx' | 'sheet';
     },
   ): Promise<ApiResponse<DocumentSearchResponse>> => {
-    return this.get<DocumentSearchResponse>('/open-apis/search/v1/docs', {
-      query,
-      ...options,
-    });
+    return this.get<DocumentSearchResponse>(
+      '/open-apis/search/v1/docs',
+      {
+        query,
+        ...options,
+      },
+      { tokenType: TokenType.USER },
+    );
   };
 }
