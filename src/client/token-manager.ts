@@ -1,4 +1,8 @@
-import { TENANT_ACCESS_TOKEN, USER_ACCESS_TOKEN } from '@/consts/index.js';
+import {
+  API_ENDPOINT,
+  TENANT_ACCESS_TOKEN,
+  USER_ACCESS_TOKEN,
+} from '@/consts/index.js';
 import type { Cache, Logger } from '@/typings/index.js';
 import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import type {
@@ -231,6 +235,8 @@ export class TokenManager {
         throw new Error('Missing required fields in user token response');
       }
 
+      this.authorizationCode = code;
+
       return data;
     } catch (error) {
       // Enhanced error logging
@@ -247,6 +253,39 @@ export class TokenManager {
       }
       throw new Error('Failed to fetch user access token');
     }
+  }
+
+  /**
+   * Set the authorization code
+   *
+   * This method can be used to update the authorization code after receiving it
+   * from the OAuth callback.
+   *
+   * @param code - Authorization code
+   */
+  setAuthorizationCode(code: string): void {
+    if (!code) {
+      throw new Error('Authorization code cannot be empty');
+    }
+
+    this.authorizationCode = code;
+    this.logger.debug('Authorization code has been updated');
+  }
+
+  /**
+   * Set the redirect URI
+   *
+   * This method can be used to update the redirect URI for OAuth flow.
+   *
+   * @param uri - Redirect URI
+   */
+  setRedirectUri(uri: string): void {
+    if (!uri) {
+      throw new Error('Redirect URI cannot be empty');
+    }
+
+    this.redirectUri = uri;
+    this.logger.debug('Redirect URI has been updated');
   }
 
   /**
@@ -293,14 +332,50 @@ export class TokenManager {
   }
 
   /**
+   * Generate authorization URL for the OAuth flow
+   *
+   * @param redirectUri - Redirect URI (overrides the one set in constructor)
+   * @param scope - Space-separated list of scopes to request
+   * @param state - State parameter for security
+   * @returns Authorization URL
+   */
+  generateAuthorizationUrl(
+    redirectUri?: string,
+    scope?: string,
+    state?: string,
+  ): string {
+    const finalRedirectUri = redirectUri || this.redirectUri;
+
+    if (!finalRedirectUri) {
+      throw new Error('Redirect URI is required for authorization');
+    }
+
+    const params = new URLSearchParams({
+      app_id: this.appId,
+      redirect_uri: finalRedirectUri,
+    });
+
+    if (scope) params.append('scope', scope);
+    if (state) params.append('state', state);
+
+    return `https://open.feishu.cn/open-apis/authen/v1/index?${params.toString()}`;
+  }
+
+  /**
    * Get user access token with caching
    *
-   * Retrieves token from cache or fetches a new one if necessary
+   * Retrieves token from cache or fetches a new one if necessary.
+   * If no authorization code is provided, it will throw an error with
+   * instructions on how to obtain one through the OAuth flow.
    *
    * @param code - Authorization code (required if no token in cache)
+   * @param redirectUri - Redirect URI to use for authorization URL in error message
    * @returns Access token
    */
-  async getUserAccessToken(code?: string): Promise<string> {
+  async getUserAccessToken(
+    code?: string,
+    redirectUri?: string,
+  ): Promise<string> {
     try {
       // Try to get from cache
       const cachedToken = await this.cache.get(USER_ACCESS_TOKEN, {
@@ -323,8 +398,24 @@ export class TokenManager {
 
     const authCode = code || this.authorizationCode;
     if (!authCode) {
+      const finalRedirectUri = redirectUri || this.redirectUri;
+
+      if (!finalRedirectUri) {
+        throw new Error(
+          'Authorization code and redirect URI are required to get user access token. ' +
+            'Please provide an authorization code or set up a redirect URI and use the generateAuthorizationUrl method ' +
+            'to obtain an authorization code through the OAuth flow.',
+        );
+      }
+
+      const authUrl = this.generateAuthorizationUrl(
+        finalRedirectUri,
+        'contact:contact.base:readonly', // Basic scope for contact info
+        `auth_${Date.now()}`, // Simple state parameter
+      );
+
       throw new Error(
-        'Authorization code is required to get user access token',
+        `Authorization code is required to get user access token. Please redirect the user to the following URL to obtain an authorization code: ${authUrl}`,
       );
     }
 
